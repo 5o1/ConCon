@@ -1,0 +1,22 @@
+{
+  "status": "static_dimensions_with_arithmetic_crosscheck",
+  "actual_task_environment_constructed": false,
+  "components": {
+    "hand_joint_positions": 54,
+    "piano_keys": 88,
+    "sustain": 1,
+    "lookahead_goal": 979,
+    "fingering": 10,
+    "ik_prior": 46,
+    "demonstrator": 396
+  },
+  "observation_dim": 6296,
+  "action_dim": 47,
+  "counts": {
+    "actor": 6722654,
+    "critic": 6710785,
+    "apr": 610305
+  },
+  "ppo_total": 13433439,
+  "network_total": 14043744
+}

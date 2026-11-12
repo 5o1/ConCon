@@ -1,0 +1,8 @@
+# The ConCon top level publishes cross-project documents only. Each project
+# (xbox_gamepad_physics, gamepad_control, dexhand_workstation, ...) is its own
+# repository, and tmp/ holds local scratch output.
+/*
+!/.gitignore
+!/docs/
+# PDFs are optional renders; HTML is the delivered format.
+/docs/**/*.pdf

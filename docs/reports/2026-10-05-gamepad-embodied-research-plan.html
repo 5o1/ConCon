@@ -1,0 +1,736 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>双臂灵巧手操作实体游戏手柄：研究路线重新评估</title>
+<style>
+:root {
+  color-scheme: light;
+  --bg: #f5f5f3; --card: #fcfcfb; --border: #e3e2de; --grid: #ebeae6;
+  --text: #0b0b0b; --text2: #52514e; --muted: #7a7974; --note: #eef4fc; --warn: #fdf3e0;
+  --good: #edf7f1; --bad: #fbeeed;
+  --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a; --s4: #eda100; --s5: #8a65cc;
+  --arrow: #aaa9a4;
+}
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme="light"])) {
+    color-scheme: dark;
+    --bg: #121211; --card: #1a1a19; --border: #33332f; --grid: #2a2a27;
+    --text: #ffffff; --text2: #c3c2b7; --muted: #8f8e86; --note: #1b2533; --warn: #2d2416;
+    --good: #172a20; --bad: #301d1c;
+    --s1: #3987e5; --s2: #d95926; --s3: #20ad7b; --s4: #c98500; --s5: #a989e6;
+    --arrow: #65645f;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #121211; --card: #1a1a19; --border: #33332f; --grid: #2a2a27;
+  --text: #ffffff; --text2: #c3c2b7; --muted: #8f8e86; --note: #1b2533; --warn: #2d2416;
+  --good: #172a20; --bad: #301d1c;
+  --s1: #3987e5; --s2: #d95926; --s3: #20ad7b; --s4: #c98500; --s5: #a989e6;
+  --arrow: #65645f;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin: 0; background: var(--bg); color: var(--text);
+  font: 15px/1.72 -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; }
+main { max-width: 980px; margin: 0 auto; padding: 32px 16px 68px; }
+h1 { font-size: 27px; line-height: 1.35; margin: 0 0 4px; }
+h2 { font-size: 20px; margin: 42px 0 8px; padding-top: 10px; border-top: 1px solid var(--border); }
+h3 { font-size: 17px; margin: 26px 0 6px; }
+h4 { font-size: 15px; margin: 18px 0 4px; }
+p { margin: 8px 0; }
+a { color: var(--s1); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.sub { color: var(--text2); margin: 0 0 18px; }
+.card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; margin: 14px 0; }
+.card > :first-child, .note > :first-child, .warn > :first-child, .good > :first-child { margin-top: 0; }
+.card > :last-child, .note > :last-child, .warn > :last-child, .good > :last-child { margin-bottom: 0; }
+.note { background: var(--note); border-radius: 8px; padding: 11px 14px; margin: 12px 0; }
+.warn { background: var(--warn); border-radius: 8px; padding: 11px 14px; margin: 12px 0; }
+.good { background: var(--good); border-radius: 8px; padding: 11px 14px; margin: 12px 0; }
+.bad { background: var(--bad); border-radius: 8px; padding: 11px 14px; margin: 12px 0; }
+.decision { border-left: 4px solid var(--s1); }
+.gate { border-left: 4px solid var(--s4); }
+.hypothesis { border-left: 4px solid var(--s5); }
+.t { font-weight: 600; margin: 0; }
+.d { color: var(--text2); font-size: 13px; margin: 2px 0 8px; }
+.small { color: var(--text2); font-size: 13px; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.toc { columns: 2; font-size: 14px; }
+.toc a { display: inline-block; margin: 2px 0; }
+.tag { display: inline-block; font-size: 12px; font-weight: 600; line-height: 1.7; border-radius: 10px;
+  padding: 0 8px; margin: 0 5px 4px 0; border: 1px solid var(--border); color: var(--text2); }
+.tag.fact { color: var(--s3); border-color: var(--s3); }
+.tag.plan { color: var(--s1); border-color: var(--s1); }
+.tag.test { color: var(--s4); border-color: var(--s4); }
+.tag.stop { color: var(--s2); border-color: var(--s2); }
+.status-row { display: flex; flex-wrap: wrap; gap: 6px 18px; color: var(--text2); font-size: 13px; }
+.status-row b { color: var(--text); }
+.scroll { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 13px; margin: 6px 0; }
+th, td { border-bottom: 1px solid var(--border); padding: 7px 8px; text-align: left; vertical-align: top; }
+th { color: var(--text2); font-weight: 600; white-space: nowrap; }
+td.num, th.num { text-align: right; white-space: nowrap; }
+.card ul, .card ol { padding-left: 22px; }
+li { margin: 3px 0; }
+code { font-size: 13px; background: var(--note); padding: 1px 4px; border-radius: 4px; }
+pre { margin: 9px 0; padding: 11px 13px; overflow-x: auto; border-radius: 7px; background: var(--note);
+  color: var(--text); font: 13px/1.65 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+button.theme { float: right; font-size: 12px; background: var(--card); color: var(--text2); border: 1px solid var(--border);
+  border-radius: 6px; padding: 3px 8px; cursor: pointer; }
+.pipeline { display: grid; grid-template-columns: 1fr 24px 1.15fr 24px 1.15fr 24px 1fr; align-items: stretch;
+  gap: 5px; margin: 12px 0; }
+.pipe-box { display: flex; min-height: 94px; flex-direction: column; justify-content: center; background: var(--card);
+  border: 1px solid var(--border); border-radius: 8px; padding: 10px; text-align: center; }
+.pipe-box b { display: block; margin-bottom: 3px; }
+.pipe-box span { color: var(--text2); font-size: 12.5px; line-height: 1.45; }
+.arrow { display: flex; align-items: center; justify-content: center; color: var(--arrow); font-size: 20px; }
+.feedback { text-align: center; color: var(--text2); font-size: 13px; border-top: 1px dashed var(--border); padding-top: 7px; }
+.loop { display: grid; grid-template-columns: repeat(7, minmax(90px, 1fr)); gap: 7px; align-items: center; }
+.loop-step { min-height: 78px; display: flex; align-items: center; justify-content: center; text-align: center;
+  background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 8px; font-size: 13px; }
+.loop-arrow { color: var(--arrow); text-align: center; font-size: 18px; }
+.phase { position: relative; padding-left: 58px; }
+.phase-no { position: absolute; left: 14px; top: 15px; width: 30px; height: 30px; display: flex; align-items: center;
+  justify-content: center; border-radius: 50%; background: var(--note); color: var(--s1); font-weight: 700; }
+.phase h3 { margin-top: 0; }
+.tree-row { display: grid; grid-template-columns: 1fr 30px 1.35fr; gap: 7px; align-items: stretch; margin: 7px 0; }
+.tree-q, .tree-a { border: 1px solid var(--border); border-radius: 8px; padding: 9px 11px; background: var(--card); }
+.tree-q { font-weight: 600; }
+.tree-a { color: var(--text2); }
+.tree-mid { display: flex; align-items: center; justify-content: center; color: var(--arrow); }
+.metric-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px 18px; }
+.metric { border-bottom: 1px solid var(--border); padding: 7px 0; }
+.metric b { display: block; }
+.metric span { color: var(--text2); font-size: 13px; }
+.ref { font-size: 13.5px; }
+.ref li { margin: 7px 0; }
+.kbd { display: inline-block; border: 1px solid var(--border); border-bottom-width: 2px; border-radius: 4px;
+  padding: 0 5px; font: 12px ui-monospace, SFMono-Regular, Menlo, monospace; }
+@media (max-width: 820px) {
+  .pipeline { grid-template-columns: 1fr; }
+  .pipeline .arrow { transform: rotate(90deg); min-height: 18px; }
+  .loop { grid-template-columns: 1fr; }
+  .loop-arrow { transform: rotate(90deg); }
+}
+@media (max-width: 720px) {
+  .grid2, .grid3, .metric-grid { grid-template-columns: 1fr; }
+  .toc { columns: 1; }
+  .tree-row { grid-template-columns: 1fr; }
+  .tree-mid { transform: rotate(90deg); }
+}
+@media print {
+  @page { size: A4; margin: 16mm; }
+  h2, h3, h4 { break-after: avoid; }
+  .grid2, .grid3, .metric-grid { display: block; }
+  .scroll { overflow: visible; }
+  :root { color-scheme: light; --bg: #fff; --card: #fff; --text: #000; --text2: #444; --border: #ccc;
+    --note: #f1f5fa; --warn: #fff6e7; --good: #eff8f2; --bad: #fbeeed; }
+  body { background: #fff; }
+  main { max-width: none; padding: 0; }
+  button.theme { display: none; }
+  a { color: #155da8; }
+  .card, table, .phase { break-inside: avoid; }
+}
+</style>
+</head>
+<body>
+<main>
+<button class="theme" id="theme">切换深浅色</button>
+<h1>双 AR5 + 双 LinkerHand G20 操作 Xbox 手柄：研究路线重新评估</h1>
+<p class="sub">初稿 2026-10-05 · 灵巧手与 VLA 计划更新 2026-10-06 · 双 AR5 + 双 G20 · 尚无本系统真机与 VLA 联合训练结果</p>
+<div class="note"><b>本次更新范围：</b>本分支负责灵巧手、视觉—语言—动作模型（VLA）及其与游戏策略的连接；另一分支负责贪吃蛇环境和游戏强化学习。第 8.5 节汇总当前决定，游戏实现进展见其独立的<a href="../../resnake_gym/docs/gamepad-interface.html">接口记录</a>。本报告中的游戏线段落只说明两条线如何衔接。</div>
+
+<div class="card">
+  <div class="status-row">
+    <span><b>文档性质</b>：研究路线与实验设计</span>
+    <span><b>证据基础</b>：公开论文、厂商接口、现有资产与平台检查</span>
+    <span><b>当前状态</b>：尚无本系统真机实验结果</span>
+  </div>
+  <p class="d" style="margin-top:8px">本文区分“已有证据”“当前决定”和“待实测事项”。G20 的可达性、实际指尖力、双手碰撞和控件覆盖范围尚未测量。</p>
+</div>
+
+<div class="card toc">
+  <a href="#abs">摘要</a><br>
+  <a href="#reframe">1. 研究目标与旧计划复盘</a><br>
+  <a href="#task">2. 任务定义与最小研究条件</a><br>
+  <a href="#prior">3. 相关工作与论文边界</a><br>
+  <a href="#hardware">4. 硬件可行性应如何验证</a><br>
+  <a href="#workflow">5. 机械臂线的研究流程与阶段门</a><br>
+  <a href="#failures">6. 失败分类与选题逻辑</a><br>
+  <a href="#protocol">7. 实验协议、基线与指标</a><br>
+  <a href="#stack">8. 技术栈、数据与仿真</a><br>
+  <a href="#vla-plan">8.5 灵巧手与 VLA：已确定计划</a><br>
+  <a href="#paper">9. 论文形成路径</a><br>
+  <a href="#next">10. 第一批里程碑与近期执行</a><br>
+  <a href="#limits">11. 局限与待确认事项</a><br>
+  <a href="#conclusion">12. 结论</a><br>
+  <a href="#appA">附录 A：最小日志字段</a><br>
+  <a href="#appB">附录 B：现有 Xbox 资产</a><br>
+  <a href="#references">参考文献</a>
+</div>
+
+<h2 id="abs">摘要</h2>
+<div class="note">
+  <p><b>结论：</b>游戏策略和实体操作可以并行推进。游戏线不依赖机械臂，可先用虚拟 Xbox 手柄跑通环境、奖励、强化学习和目标 HID 轨迹记录；机械臂线同时确认双 AR5 + 双 G20 能否在不固定手柄、不改造指尖的条件下，稳定持握并操作按钮、摇杆和扳机。两条线共用同一套带时间戳的手柄动作定义，最后再接成闭环。</p>
+  <p>我们保留“游戏策略—实体操作”分层，以实际手柄报告评价执行结果。当前把 π0.5 列为 VLA 主候选，研究可微手柄条件与双臂双手动作的连接。游戏线给出动作需求；机械臂线测量带宽、延迟、误差和并发限制。联合任务还须检验游戏状态变化后，系统是否依靠新观测调整实体操作。</p>
+</div>
+
+<div class="warn"><b>对旧判断的修正：</b>G20 尺寸较大、可能自碰撞、主观上“力弱”，这些现象都不足以证明任务不可行。需要分别测量可达姿态、接触位置、指尖力、关节饱和和手柄漂移。若常见的人类握法不可行，但另一种握法可行，应记录机器人采用的替代策略；若在厂商规定的安全范围内始终找不到可行姿态和接触方案，则把它报告为这套硬件的能力边界。</div>
+
+<h2 id="reframe">1. 研究目标与旧计划复盘</h2>
+
+<h3>1.1 本报告要回答的问题</h3>
+<div class="card">
+  <ol>
+    <li>旧计划中的哪些决定继续保留，哪些撤销或后置？</li>
+    <li>双 AR5 + 双 G20 的第一项真机实验应保留哪些困难，又暂时排除哪些变量？</li>
+    <li>如何区分几何、接触、驱动、观测、时序、数据和策略问题？</li>
+    <li>怎样适配 VLA、物理资产和强化学习，并验证两个平台之间的梯度与执行链路？</li>
+    <li>已有工作覆盖到哪里，本项目的论文贡献需要从哪里开始？</li>
+  </ol>
+  <p>研究按以下顺序推进。先运行最小真机任务并保存完整记录；对重复出现的失败做归因；形成可检验的假设后再选择方法和消融实验。</p>
+  <div class="loop" aria-label="研究循环">
+    <div class="loop-step"><b>任务定义</b></div><div class="loop-arrow">→</div>
+    <div class="loop-step"><b>真机运行</b></div><div class="loop-arrow">→</div>
+    <div class="loop-step"><b>失败证据</b></div><div class="loop-arrow">→</div>
+    <div class="loop-step"><b>可检验假设</b></div>
+  </div>
+  <div class="loop" style="margin-top:7px" aria-label="研究循环后半段">
+    <div class="loop-step"><b>方法与消融</b></div><div class="loop-arrow">←</div>
+    <div class="loop-step"><b>主要问题</b></div><div class="loop-arrow">←</div>
+    <div class="loop-step"><b>失败分类</b></div><div class="loop-arrow">←</div>
+    <div class="loop-step"><b>同步复盘</b></div>
+  </div>
+  <p class="d">当前确定采用强化学习路线，并研究 VLA 适配。触觉配置、具体优化方法和仿真到真机的迁移方式仍由接口核查与失败证据决定。</p>
+</div>
+
+<h3>1.2 旧计划中哪些保留，哪些改写</h3>
+<div class="card scroll">
+<table>
+  <tr><th>旧计划元素</th><th>重新评估</th><th>理由</th></tr>
+  <tr><td>游戏策略与实体操作分层</td><td><span class="tag fact">保留</span></td><td>可把“不会玩游戏”和“手没有实现输入”分开测量；不消除任何接触难题。</td></tr>
+  <tr><td>使用真实 HID</td><td><span class="tag fact">保留但分角色</span></td><td>HID 可作评价、训练期特权监督或部署期闭环观测；三种设定必须明确区分，防止观测泄漏。</td></tr>
+  <tr><td>把手柄刚性固定</td><td><span class="tag test">只作对照</span></td><td>固定条件可定位抓握—操作耦合，但不能替代自由持握主任务。</td></tr>
+  <tr><td>专用软指尖或更换手指</td><td><span class="tag test">后置干预</span></td><td>先观察原始 G20 的失败；工程改造若能消除某类失败，可成为因果对照。</td></tr>
+  <tr><td>先完成可动 Xbox 数字孪生</td><td><span class="tag stop">取消前置</span></td><td>扫描网格不提供按钮力、摇杆弹簧、摩擦、柔顺和触觉；过早建模容易拟合错误物理。</td></tr>
+  <tr><td>脚本专家大规模生成仿真数据</td><td><span class="tag stop">不纳入当前训练</span></td><td>任务适配使用强化学习交互，不采用规则教师、人工示范、行为克隆或 DAgger。</td></tr>
+  <tr><td>ACT → OpenVLA-OFT → π0.5</td><td><span class="tag plan">改为 π0.5 主候选</span></td><td>优先核查可微条件输入、新形态动作空间与强化学习接口；模型对照按问题设置，不逐个堆叠。</td></tr>
+  <tr><td>FPS 作为目标任务</td><td><span class="tag test">仅后期压力测试</span></td><td>高带宽游戏不是研究成立门槛；先用时间缩放的目标轨迹测量物理执行带宽。</td></tr>
+</table>
+</div>
+
+<h2 id="task">2. 任务定义与最小研究条件</h2>
+
+<h3>2.1 标准化任务</h3>
+<div class="card">
+  <p>把上层给出的目标定义为手柄状态轨迹：</p>
+  <pre>g*(t) = [LX, LY, RX, RY, LT, RT, A, B, X, Y, LB, RB, ...]
+g(t)  = 实体手柄经 USB HID 报告的实际状态</pre>
+  <p>机器人策略接收目标轨迹及允许的传感观测，输出双臂和双手动作。评价同时考虑 <code>g*(t) − g(t)</code>、手柄位姿漂移、误触、掉落和恢复。首阶段任务记为<b>自由持握下的目标手柄状态跟踪</b>。</p>
+</div>
+
+<div class="pipeline" aria-label="系统任务链">
+  <div class="pipe-box"><b>目标控制轨迹</b><span>游戏策略输出；单控件和组合目标用于诊断</span></div>
+  <div class="arrow">→</div>
+  <div class="pipe-box"><b>具身策略</b><span>视觉 + 本体 + 触觉；输出 action chunk 或分层动作</span></div>
+  <div class="arrow">→</div>
+  <div class="pipe-box"><b>双 AR5 + 双 G20</b><span>保持自由抓握，同时接触和切换控件</span></div>
+  <div class="arrow">→</div>
+  <div class="pipe-box"><b>未改造 Xbox 手柄</b><span>实际 HID、控制器位姿、误触与掉落</span></div>
+</div>
+<div class="feedback">HID 提供结果真值；视觉、触觉和本体提供具身闭环。HID 是否输入策略由实验设定决定。</div>
+
+<h3>2.2 第一版保留什么，暂时隔离什么</h3>
+<div class="grid2">
+  <div class="card">
+    <p class="t">第一阶段仍然包含</p>
+    <ul>
+      <li>普通、未改造的实体手柄；</li>
+      <li>两只 G20 共同承担承重、稳定与操作；</li>
+      <li>按钮、扳机、摇杆及其组合；</li>
+      <li>视觉遮挡、接触滑移、误触和恢复；</li>
+      <li>真实通信延迟、回差与驱动限制。</li>
+    </ul>
+  </div>
+  <div class="card">
+    <p class="t">第一阶段的简化条件</p>
+    <ul>
+      <li>由人把手柄放入标称初始握姿；</li>
+      <li>先给目标 HID，不要求理解游戏画面；</li>
+      <li>先慢速、短轨迹，再逐步增加速度和长度；</li>
+      <li>外部相机或标记只作评价，不必作为策略输入；</li>
+      <li>软托盘或安全绳只防摔，不承受操作载荷。</li>
+    </ul>
+  </div>
+</div>
+<p class="small">这种分解用于归因，不是把困难永久删除。自主拿取、随机初始姿态、扰动恢复和游戏画面闭环应在后续逐项加入。</p>
+
+<h3>2.3 两条实验线并行推进</h3>
+<div class="card scroll">
+<table>
+  <tr><th>实验线</th><th>先做什么</th><th>主要输出</th><th>从另一条线接收什么</th></tr>
+  <tr><td><b>游戏强化学习</b></td><td>虚拟手柄环境、奖励、重置、状态基线、像素策略</td><td>策略检查点、理想成绩、带时间戳的目标 HID 轨迹、控件使用分布</td><td>实测延迟、最大变化率、跟踪误差、漏按/误触率、可并发控件组合</td></tr>
+  <tr><td><b>机械臂与灵巧手</b></td><td>同步记录、自然持握、逐控件操作、轨迹回放与恢复</td><td>实际 HID、逐控件能力表、执行带宽、失败记录、物理通道参数</td><td>游戏中真实出现的动作频率、组合、持续时间和切换顺序</td></tr>
+  <tr><td><b>共用接口</b></td><td>定义控制向量、时间戳、保持时间、有效期和日志字段</td><td>可由虚拟手柄或实体手柄执行的同一条目标轨迹</td><td>两条线都不得绕过该接口直接使用不可映射的动作</td></tr>
+</table>
+</div>
+
+<div class="grid2">
+  <div class="card">
+    <p class="t">游戏线的第一轮</p>
+    <ol>
+      <li>选一个可程序化重置、奖励可读、能加速运行的游戏或环境。</li>
+      <li>所有动作经虚拟 Xbox 接口发送，并保存逐时刻 HID；不直接调用实体手柄无法表达的游戏内部动作。</li>
+      <li>先用游戏内部状态训练一个 PPO 基线，检查奖励、终止条件和动作映射。</li>
+      <li>再把观测换成游戏画面；若单帧不足，使用帧堆叠或循环策略。</li>
+      <li>分别报告理想虚拟手柄和受限手柄两组结果。</li>
+    </ol>
+    <p class="d">动作头按手柄结构拆分：摇杆和扳机输出连续分布，按钮输出 Bernoulli；首个游戏未使用的控件固定为中位。策略频率与游戏帧率分开设置，动作在两次决策之间保持。</p>
+  </div>
+  <div class="card">
+    <p class="t">机械臂线的第一轮</p>
+    <ol>
+      <li>打通双臂、双手、触觉、HID 与视频的同步记录。</li>
+      <li>核查机器人及手柄资产；硬件诊断记录单独保存，不作为策略示范数据。</li>
+      <li>回放游戏线产生的短轨迹，而不只测试人工编写的动作。</li>
+      <li>测量每类控件的延迟、误差、最大变化率和可重复并发组合。</li>
+      <li>把测量结果返回游戏线，用于动作约束和通道随机化。</li>
+    </ol>
+  </div>
+</div>
+
+<div class="decision card">
+  <p class="t">两条线之间只先固定一个小接口</p>
+  <pre>可微训练接口：目标手柄张量 [batch, horizon, 20]
+配套信息：观测时间、目标执行时间、有效期、已执行报告
+设备边界：转换为真实按钮状态及摇杆、扳机轴值</pre>
+  <p>游戏线先按理想通道训练，即目标动作直接成为游戏输入；机械臂线得到数据后，再加入延迟、死区、变化率限制、连续误差、漏按和误触。用 <code>C<sub>θ</sub></code> 表示这段实体执行通道：</p>
+  <pre>目标 HID  g*(t)  ── Cθ ──&gt;  实际 HID  g(t)</pre>
+  <p class="d">这样既不要求游戏强化学习等待真机，也不会把理想手柄上的成绩误当成整套系统的成绩。</p>
+</div>
+
+<div class="warn"><b>游戏线的两个基线要同时保留：</b>读取游戏内部状态的策略用于检查环境和给出上限；最终可部署策略应只读取部署时确实能获得的画面或状态。若训练时使用内部状态作特权信息，需要单独标明，不能与纯视觉结果混报。</div>
+
+<h2 id="prior">3. 相关工作与论文边界</h2>
+
+<div class="card scroll">
+<table>
+  <tr><th>工作</th><th>已经做到</th><th>与本项目的关键差异</th></tr>
+  <tr><td>Hubbard 等，Science Advances 2021 [1]</td><td>三指气动软手用预编程压力序列操作 NES 控制器并完成 Mario 第一关。</td><td>贡献是集成流体电路与制造；控制器和手部机构专用，没有视觉/触觉学习、自由持握或双手多控件。</td></tr>
+  <tr><td>T-Dex，CoRL 2023 [2]</td><td>视觉—触觉策略完成包括街机摇杆在内的五个真实灵巧任务；显示遮挡下触觉的价值。</td><td>摇杆任务是单手从上方接触固定对象，不包含双手持握、全控件、并发输入和长时稳定。</td></tr>
+  <tr><td>DexGYS，NeurIPS 2024 [3]</td><td>Allegro Hand + Flexiv 对 game controller 执行 language-conditioned task-oriented grasp。</td><td>解决静态功能抓握，不在抓握后操作摇杆、按钮或扳机。</td></tr>
+  <tr><td>GRAB，ECCV 2020 [4]</td><td>收集包括 game controller 在内的人体—物体交互、手形与接触数据。</td><td>是人体动作与接触数据，不包含控制器活动件状态和机器人闭环执行。</td></tr>
+  <tr><td>Soft robotic mouse hand，2025 [5]</td><td>专用软手抓持鼠标并完成多种点击与滚轮操作。</td><td>说明“机器人操作普通输入设备”本身已不新；其形态、控件复杂度和双手耦合不同。</td></tr>
+  <tr><td>Xbox 单摇杆工程项目，2020 [6]</td><td>专用双舵机机构物理驱动一个 Xbox 摇杆，以游戏内部状态训练策略。</td><td>没有通用灵巧手、自由抓握、按钮/扳机、视觉或触觉。</td></tr>
+</table>
+</div>
+
+<div class="decision card">
+  <p><span class="tag plan">论文边界</span><b>“机器人玩游戏”“机器手按实体手柄”以及“灵巧手抓住 gamepad”均已有相邻工作，不能单独作为贡献。</b></p>
+  <p>在本次检索范围内，尚未发现同时覆盖“普通商用手柄、双臂五指灵巧手、自由持握、持握中操作活动控件、连续与组合输入、学习闭环”的公开工作。这个“未发现”不是不存在证明，投稿前仍需系统检索。</p>
+  <p>本项目需要从<b>抓住以后</b>开始回答问题：如何同时维持抓握和保留控件可操作性；如何分配双手的保持力与操作力；如何利用 HID 监督视觉—触觉策略；如何在滑移或误触后恢复；以及方法能否适用于不同握姿、手柄实例和控件布局。</p>
+</div>
+
+<h2 id="hardware">4. 硬件可行性应如何验证</h2>
+
+<h3>4.1 当前能说什么，不能说什么</h3>
+<div class="grid2">
+  <div class="good">
+    <p class="t">当前有依据的判断</p>
+    <ul>
+      <li>公开 LinkerHand SDK 支持 G20、左右手和触觉接口；高级控制话题标注了约 30 Hz 的命令限制 [8]。</li>
+      <li>AR5 的低层实时回路应留在直连控制器的本地计算机；远端 GPU 不进入安全与伺服链 [9][10]。</li>
+      <li>Xbox HID 可以直接给出按钮、摇杆和扳机的结果状态。</li>
+      <li>现有几何资产足以做尺度参考和粗碰撞检查。</li>
+    </ul>
+  </div>
+  <div class="warn">
+    <p class="t">仍必须真机确认</p>
+    <ul>
+      <li>两只 G20 的准确代次、固件、触觉配置与安全力矩范围；</li>
+      <li>代表性控件是否存在无碰撞、可维持的接触解；</li>
+      <li>实物按钮、摇杆和扳机的力—位移曲线；</li>
+      <li>双手握持时的可用指尖力、滑移与热稳定性；</li>
+      <li>端到端命令、状态、触觉和 HID 的延迟与抖动。</li>
+    </ul>
+  </div>
+</div>
+
+<h3>4.2 “大、碰撞、力弱”不是结论，而是可区分的假设</h3>
+<div class="card scroll">
+<table>
+  <tr><th>观测</th><th>更可能的原因</th><th>下一项受控实验</th></tr>
+  <tr><td>关节命令到不了目标，同时电流/力矩饱和</td><td>驱动、传动或安全限制</td><td>测负载阶跃、温升和厂商允许范围；不先修改底层驱动。</td></tr>
+  <tr><td>关节到位，但 HID 未触发</td><td>接触位置、法向力方向或按钮行程不匹配</td><td>固定手柄，扫描接触点与按压方向。</td></tr>
+  <tr><td>固定手柄成功，自由持握失败</td><td>抓握—操作力耦合或控制器漂移</td><td>加入触觉闭环、双手力分配或稳定腕部动作。</td></tr>
+  <tr><td>单控件成功，组合时失败</td><td>同手串扰、手指非独立性或共享腕运动</td><td>改变分工与动作表示，测并发维数曲线。</td></tr>
+  <tr><td>慢速成功，高速丢事件</td><td>通信、执行器或策略带宽</td><td>按设备分别测时延，再做预测或多速率控制。</td></tr>
+  <tr><td>常见人类握姿失败，另一握姿成功</td><td>机器人手型与人用手柄不匹配，但任务仍有解</td><td>学习或搜索适合 G20 的功能握姿。</td></tr>
+</table>
+</div>
+
+<div class="warn"><b>关于修改驱动：</b>提高电流或力矩上限不能凭空突破电机、减速器、传动和热限制，还会改变安全性与寿命。在没有负载数据和厂商安全边界前不应作为第一步。只有确认“期望关节运动因安全限幅而失败”，才讨论参数调整；若根因是滑移、方向和力分配，提高力反而可能增加误触或损伤。</div>
+
+<h2 id="workflow">5. 机械臂线的研究流程与阶段门</h2>
+
+<div class="phase card">
+  <div class="phase-no">0</div>
+  <h3>仪器化：先保证失败可复盘</h3>
+  <p>打通双 AR5、双 G20、触觉、相机、HID、命令网关、episode 管理与统一单调时钟。记录策略原始输出、安全裁剪后动作、实际下发值和硬件反馈。此阶段不评价模型。</p>
+  <p class="d"><b>退出条件 G0：</b>任意失败都能回答“策略想做什么、系统实际发送什么、硬件做了什么、手柄报告什么”。</p>
+</div>
+
+<div class="phase card">
+  <div class="phase-no">1</div>
+  <h3>可行接触方案与逐控件能力表</h3>
+  <p>用遥操作、关键帧和低速脚本探索稳定握持、ABXY、D-pad、二维摇杆、不同深度扳机、跨手组合、同手组合和保持—切换。系统改变初始握姿、腕姿、手指分工、速度与并发维数；成功和失败都保留。</p>
+  <p class="d"><b>退出条件 G1：</b>至少由人工或遥操作完成代表性的按钮、摇杆、扳机和组合动作；若不能，记录不可行的姿态、接触位置和力条件。</p>
+</div>
+
+<div class="phase card">
+  <div class="phase-no">2</div>
+  <h3>目标轨迹跟踪：测量物理执行带宽</h3>
+  <p>使用游戏策略产生的目标手柄轨迹，在记录明确时间倍率的条件下测量跟踪误差。分别增加轨迹长度、并发控件数和接触切换次数。诊断目标只规定手柄应达到的状态，不提供机器人的专家动作。</p>
+  <p class="d"><b>退出条件 G2：</b>能够画出误差随速度、并发维数和序列长度变化的能力包络，并定位第一次失效。</p>
+</div>
+
+<div class="phase card">
+  <div class="phase-no">3</div>
+  <h3>诊断基线：模型用于回答问题</h3>
+  <p>适配 π0.5 的手柄条件与双臂双手动作，通过强化学习收集本任务交互。我们计划比较预训练初始化与随机初始化，并逐项比较视觉、本体及可用反馈的作用。人工和脚本只用于硬件诊断，不产生行为克隆训练集。</p>
+  <p class="d"><b>退出条件 G3：</b>至少一个可重复基线覆盖部分任务，且主要失败可归因，而不是只记录 episode success。</p>
+</div>
+
+<div class="phase card">
+  <div class="phase-no">4</div>
+  <h3>方法研究：针对已经重复出现的失败</h3>
+  <p>根据失败记录选择触觉闭环、动作表示、接触恢复、主动采样、多速率控制、适合手型的抓握或针对性 sim-to-real。方法必须改善预先定义的失败类别，并通过消融说明原因。</p>
+  <p class="d"><b>退出条件 G4：</b>改善跨抓握、姿态、手柄实例或轨迹仍成立，而不是只修复一个演示。</p>
+</div>
+
+<div class="phase card">
+  <div class="phase-no">5</div>
+  <h3>两条线集成：测量实体执行造成的性能损失</h3>
+  <p>使用游戏线已经训练好的同一个策略：一组动作直接送入虚拟手柄，另一组经过双臂双手再由实体手柄输入游戏。比较两种条件下的游戏成绩、延迟和输入误差，把游戏策略本身的限制与实体执行造成的损失分开。最后再比较“游戏画面直接到机器人动作”的端到端方法。</p>
+  <p class="d"><b>退出条件 G5：</b>结果能够区分游戏策略限制与实体操作限制；游戏得分只作为长序列验证指标之一。</p>
+</div>
+
+<h2 id="failures">6. 失败分类与选题逻辑</h2>
+
+<h3>6.1 Failure taxonomy</h3>
+<div class="card scroll">
+<table>
+  <tr><th>类别</th><th>典型证据</th><th>可能的研究方向</th></tr>
+  <tr><td>几何可达性</td><td>关节极限、自碰撞、臂间碰撞、控件不可达</td><td>功能握姿搜索、形态感知规划、接触中心表示</td></tr>
+  <tr><td>接触建立</td><td>指尖错位、法向力方向错误、接触面滑开</td><td>视觉—触觉接触状态估计、局部闭环修正</td></tr>
+  <tr><td>抓握稳定</td><td>操作中手柄平移、旋转或掉落</td><td>抓握—操作力联合分配、稳定性约束</td></tr>
+  <tr><td>接触串扰</td><td>误触邻键、操作一个控件使另一个状态改变</td><td>手指分工、接触模式规划、层级动作空间</td></tr>
+  <tr><td>驱动与传动</td><td>力矩饱和、过流、温升、柔顺、回差</td><td>能力辨识、受约束控制、多速率补偿</td></tr>
+  <tr><td>部分可观测</td><td>手部遮挡、触觉歧义、控制器姿态漂移</td><td>视觉—触觉—本体融合、隐状态估计</td></tr>
+  <tr><td>时序与带宽</td><td>动作滞后、双手不同步、按钮事件丢失</td><td>预测控制、action chunk、多速率架构</td></tr>
+  <tr><td>策略与表示</td><td>单动作成功但转换失败、离散/连续混淆</td><td>接触原语、混合动作头、残差策略</td></tr>
+  <tr><td>数据分布</td><td>标称轨迹成功，偏离后无法恢复</td><td>强化学习交互覆盖、自主接触探索、延迟与扰动条件下的恢复评估</td></tr>
+  <tr><td>系统集成</td><td>时间戳错位、丢包、重置不一致</td><td>先修复工程；除非形成可泛化系统方法，否则不包装成算法贡献</td></tr>
+</table>
+</div>
+
+<h3>6.2 从证据到论文问题</h3>
+<div class="card">
+  <div class="tree-row"><div class="tree-q">遥操作是否存在可行轨迹和接触方案？</div><div class="tree-mid">→</div><div class="tree-a"><b>否：</b>检查手型、可达性、力和工具几何之间的限制；不能直接归咎于学习。</div></div>
+  <div class="tree-row"><div class="tree-q">遥操作成功，脚本/回放是否成功？</div><div class="tree-mid">→</div><div class="tree-a"><b>否：</b>主攻接触闭环、状态估计、时延或滑移。</div></div>
+  <div class="tree-row"><div class="tree-q">传统控制成功，学习策略是否成功？</div><div class="tree-mid">→</div><div class="tree-a"><b>否：</b>主攻数据覆盖、动作表示、时序模型或模态融合。</div></div>
+  <div class="tree-row"><div class="tree-q">短轨迹成功，长轨迹是否稳定？</div><div class="tree-mid">→</div><div class="tree-a"><b>否：</b>主攻误差累积、失败检测和自主恢复。</div></div>
+  <div class="tree-row"><div class="tree-q">标称条件成功，扰动后是否恢复？</div><div class="tree-mid">→</div><div class="tree-a"><b>否：</b>主攻鲁棒性、在线适应与跨条件泛化。</div></div>
+</div>
+
+<h2 id="protocol">7. 实验协议、基线与指标</h2>
+
+<h3>7.1 难度阶梯</h3>
+<div class="card scroll">
+<table>
+  <tr><th>级别</th><th>条件</th><th>主要目的</th></tr>
+  <tr><td>T0</td><td>手柄受支撑；单控件；低速</td><td>标定控件位置、方向、行程和所需力；不计作最终成功。</td></tr>
+  <tr><td>T1</td><td>人工放入双手；自由持握；静态保持</td><td>测 60–300 s 位姿漂移、滑移与热稳定性。</td></tr>
+  <tr><td>T2</td><td>自由持握；单个按钮、摇杆或扳机</td><td>验证代表性接触解与基本闭环。</td></tr>
+  <tr><td>T3</td><td>自由持握；跨手和同手组合</td><td>测并发维数、串扰和力分配。</td></tr>
+  <tr><td>T4</td><td>游戏策略目标轨迹的时间缩放跟踪</td><td>测带宽、时序误差和错误累积。</td></tr>
+  <tr><td>T5</td><td>初始握姿变化、外力扰动、目标突变</td><td>测失败检测与恢复。</td></tr>
+  <tr><td>T6</td><td>自主拿取、不同实例/型号、实际游戏</td><td>测泛化范围与完整执行链路。</td></tr>
+</table>
+</div>
+
+<h3>7.2 基线不是排行榜，而是诊断工具</h3>
+<div class="grid2">
+  <div class="card">
+    <p class="t">非学习与上限基线</p>
+    <ol>
+      <li>人类直接操作：给出轨迹要求和设备上限；</li>
+      <li>虚拟手柄：给出没有实体执行误差时的游戏上限；</li>
+      <li>人工遥操作机器人：证明硬件是否存在物理解；</li>
+      <li>关键帧/有限状态机 + HID：传统闭环基线；</li>
+      <li>固定与自由手柄：分离抓握—操作耦合。</li>
+    </ol>
+  </div>
+  <div class="card">
+    <p class="t">学习基线与消融</p>
+    <ol>
+      <li>π0.5 适配后的强化学习策略：检验任务迁移；</li>
+      <li>随机初始化策略：检验预训练贡献；动作分块的既有工作 [7] 只作方法背景；</li>
+      <li>视觉 / 本体 / 触觉逐项消融；</li>
+      <li>HID 作为观测、仅训练监督、仅评价三种设定；</li>
+      <li>原始双臂双手动作 vs 分层接触/残差动作。</li>
+    </ol>
+  </div>
+</div>
+
+<h3>7.3 主要指标</h3>
+<div class="card metric-grid">
+  <div class="metric"><b>离散控件</b><span>按钮事件 precision、recall、误触率和时间误差</span></div>
+  <div class="metric"><b>连续控件</b><span>摇杆/扳机 MAE、RMSE、相位滞后、超调和稳定时间</span></div>
+  <div class="metric"><b>并发能力</b><span>误差随同时控制维数和接触切换频率的变化</span></div>
+  <div class="metric"><b>带宽包络</b><span>成功率与误差随轨迹时间倍率的变化</span></div>
+  <div class="metric"><b>抓握稳定</b><span>控制器 6D 位姿漂移、滑移事件和掉落率</span></div>
+  <div class="metric"><b>恢复</b><span>失败检测延迟、恢复成功率和恢复时间</span></div>
+  <div class="metric"><b>硬件代价</b><span>碰撞、力矩饱和、温度、能耗和安全裁剪量</span></div>
+  <div class="metric"><b>泛化</b><span>新握姿、新位置、新实例、新轨迹和新游戏上的性能</span></div>
+</div>
+<p class="small">游戏分数和关卡成功率放在最后报告。它们适合展示端到端结果，但不能单独解释失败机制。</p>
+
+<h2 id="stack">8. 技术栈、数据与仿真</h2>
+
+<h3>8.1 现在使用</h3>
+<div class="card scroll">
+<table>
+  <tr><th>组件</th><th>当前角色</th><th>边界</th></tr>
+  <tr><td>游戏环境 + 虚拟 Xbox 接口</td><td>游戏强化学习、理想输入基线和目标 HID 轨迹采集</td><td>状态、奖励和重置可使用游戏接口；动作必须经过统一手柄表示。</td></tr>
+  <tr><td>PPO 基线</td><td>先验证游戏线的环境、奖励和动作映射，再训练画面输入策略</td><td>内部状态结果与纯画面结果分开报告；不是机械臂策略。</td></tr>
+  <tr><td>AR5 官方 ROS 2 / ros2_control</td><td>状态、慢速轨迹、联调与可达性检查 [9]</td><td>安全与实时执行留在本地控制机。</td></tr>
+  <tr><td>xCore 本地执行层</td><td>承接厂商实时回路 [10]</td><td>模型、远端网络和日志不得阻塞实时回调。</td></tr>
+  <tr><td>G20 ROS 2 advanced node</td><td>双手命令、关节反馈和原始触觉 [8]</td><td>按实物固件测命令频率、反馈率和延迟，不把文档值当实测值。</td></tr>
+  <tr><td>Xbox HID</td><td>任务真值、自动标签、奖励与评价</td><td>是否作为策略输入必须在实验中明确。</td></tr>
+  <tr><td>rosbag2 / MCAP</td><td>保存原始多模态数据和失败证据</td><td>先保真记录，之后离线转换训练格式。</td></tr>
+  <tr><td>唯一 Command Gateway</td><td>动作源互斥、限位、速率限制、watchdog、裁剪与审计</td><td>人工、脚本和策略不能同时抢占执行器。</td></tr>
+</table>
+</div>
+
+<h3>8.2 现在只冒烟，之后再进入主链路</h3>
+<div class="grid2">
+  <div class="card">
+    <p class="t">XPolicyLab</p>
+    <p>核查现有模型适配器、动作维度与重置接口 [11]。远程推理服务可用于执行，但跨进程序列化通常会切断自动求导；联合训练路径须单独验证。</p>
+  </div>
+  <div class="card">
+    <p class="t">RoboTwin / SAPIEN</p>
+    <p>优先核查并复用 GPU 节点现有平台 [12]。先验证机器人形态、关节和手柄接触资产，再判断能否承载强化学习交互；尚未确定本任务的最终仿真后端。</p>
+  </div>
+</div>
+
+<h3>8.3 运行与存储边界</h3>
+<div class="card">
+  <ul>
+    <li><b>机器人本地计算机</b>：AR5/G20 驱动、硬件 watchdog、命令网关和实时安全链。</li>
+    <li><b>GPU 节点</b>：离线训练、数据转换、评估与可选的低频远端 action chunk；大型数据和权重放在 <code>/data</code>。</li>
+    <li><b>本地工作区</b>：代码、配置、标定、报告、资产清单和少量可复现实例；不复制大型数据集与权重。</li>
+    <li><b>远端失联</b>：动作过期、缓冲耗尽或网络断开时，由本地进入保持或安全停止；不能等待远端恢复。</li>
+  </ul>
+  <p class="d">现有 RoboTwin 位于 GPU 节点的 <code>&lt;gpu-node&gt;/robotwin-benchmark/runtime/RoboTwin</code>。只读检查时未发现 AR5、G20 或 Xbox 资产；该目录已有其他改动，本次没有写入。</p>
+</div>
+
+<h3>8.4 仿真资产的验证范围</h3>
+<div class="warn">
+  <p>现有 Xbox 扫描件是单一高面数网格；分件 Blender 模型虽能参考控件拓扑，但尺寸不可靠。两者都没有经验证的按钮轴、行程、摇杆死区与弹簧、扳机力矩、摩擦、壳体柔顺或触觉模型。现阶段制作的 URDF 最多用于几何检查，不能称为经过验证的物理模型。</p>
+  <p>我们将资产核查与 VLA 接口适配并行推进。可达性检查先使用几何近似；接触训练需要活动关节、回弹和摩擦等参数。模型训练结果的适用范围取决于这些参数的验证程度。</p>
+</div>
+
+<h3 id="vla-plan">8.5 灵巧手与 VLA：已确定计划（2026-10-06）</h3>
+<div class="decision card">
+  <p class="t">研究对象与分工</p>
+  <p>我们研究双 ROKAE AR5-5/0.8R 与双 LinkerHand G20 如何操作普通 Xbox 手柄。游戏策略给出带时间信息的手柄目标，VLA 根据机器人相机、本体状态及允许使用的实际手柄反馈，输出双臂和双手动作。触觉是否加入取决于实物配置与标定。游戏必须由实际执行产生的输入推进。</p>
+  <p>两条线可以先独立训练和检查接口，最终要验证反馈闭环。固定轨迹回放用于测量机械跟踪能力；联合任务需要在游戏状态变化和机械执行偏差之后重新决策。贪吃蛇及其训练由另一分支维护，本分支不重复修改。</p>
+</div>
+<div class="card scroll">
+<table>
+  <tr><th>事项</th><th>当前决定</th><th>仍需核实</th></tr>
+  <tr><td>基础模型</td><td>π0.5 为主候选，使用官方 openpi 基础权重；π0 和 GR00T 保留为问题驱动的对照 [13][17]。</td><td>尚未锁定代码提交与权重校验值，也未完成本任务加载和训练。</td></tr>
+  <tr><td>版本选择</td><td>不因 π0 的旧输入接口更方便而优先降级。2026-10-06 的官方仓库核查未找到 π0.6 权重与训练实现 [13]。</td><td>模型发布状态可能变化；第三方复现不等于官方预训练权重。</td></tr>
+  <tr><td>学习路线</td><td>本任务适配采用强化学习，不新增人工示范、行为克隆或规则专家训练阶段。</td><td>基础模型已有预训练仍会被使用；这不等于整个模型从未学习过示范。</td></tr>
+  <tr><td>可微条件</td><td>手柄目标作为连续张量进入独立条件通道，保留至下游训练损失的梯度。</td><td>具体注入位置、动作头适配和冻结范围需要验证，尚未确定。</td></tr>
+  <tr><td>物理资产</td><td>核对厂商机器人模型、左右手配置、关节耦合和手柄活动控件；优先复用已有资产。</td><td>实际可控制维数、碰撞几何、力学参数和最终仿真后端尚未验收。</td></tr>
+</table>
+</div>
+<h4>模型与接口为什么这样选</h4>
+<p>官方 openpi 提供 π0.5 基础权重及连续动作生成代码 [13]。其默认本体状态经过离散编码，但手柄目标可以通过新增的连续条件通道接入；这是本项目待验证的适配，不是上游现成功能。官方默认动作维度为 32，双臂与 G20 的维度必须按独立控制量核实，不能由型号名称推算 [14]。</p>
+<p>预训练可能提供视觉和操作表征，但我们尚无证据证明公开权重见过本任务的完整硬件组合。机器人结构描述文件（URDF）、碰撞体和接触参数由仿真使用，VLA 通过观测与动作交互。我们将用同条件初始化对照判断预训练贡献；灵巧操作能力需要另行评测。</p>
+<h4>两分支之间传什么</h4>
+<p>我们沿用<a href="../../resnake_gym/src/resnake_gym/gamepad.py">当前游戏接口</a>中的 20 维控件顺序：14 个按钮，随后是 LX、LY、RX、RY、LT、RT。按钮顺序以该文件的 <code>BUTTONS</code> 为准。按钮表示释放或按住；摇杆范围为 −1 到 1，向右和向上为正；扳机范围为 0 到 1。训练条件张量为 <code>[B,H,20]</code>，B 是批量大小，H 是未来目标数量。每个目标对应明确的执行时间，H 不表示模型调用次数。</p>
+<p>设备状态和可微条件分开处理。按钮在实际前向执行中为离散值，联合训练可以采用 Gumbel-Softmax 的直通估计：前向取硬值，反向使用连续近似 [15]。它提供有偏代理梯度；真实接触、离散游戏及游戏奖励仍需强化学习处理。原始手柄报告同时保留，避免把目标状态与实际状态混淆。</p>
+<h4>联合优化的边界</h4>
+<p>我们要求可微下游损失能够经过 VLA 和手柄条件回到游戏策略。这个要求并未决定完整的损失函数。官方采样入口关闭梯度，调用它不能完成该检查 [14]；训练路径须明确记录参与更新的参数、输入梯度和内存开销。</p>
+<p>ReinFlow 是流匹配策略在线强化学习的调研候选，作者代码包含相关 VLA 支持 [16]。我们尚未选定它作为最终算法，也未验证它在陌生双手形态上的探索效果。游戏奖励、手柄跟踪反馈与动作约束怎样共同优化，将在代码及实验依据齐备后单独记录。</p>
+<h4>灵巧手线的执行顺序与验收</h4>
+<div class="card scroll"><table>
+  <tr><th>阶段</th><th>要做的事</th><th>进入下一阶段所需证据</th></tr>
+  <tr><td>V0：资产与接口</td><td>检查 AR5、左右 G20、Xbox 活动控件及现有 RoboTwin；记录版本和许可。</td><td>每个命令对应的关节、单位、限位、反馈及接触几何可追溯；缺失项明确列出。</td></tr>
+  <tr><td>V1：模型适配</td><td>加载 π0.5，接入可微目标序列，适配完整机械动作空间。</td><td>输出维度正确；下游测试损失能回传到条件通道和上游参数；加载与显存日志完整。</td></tr>
+  <tr><td>V2：实体操作学习</td><td>用强化学习交互学习按压、保持、释放、摇杆和组合目标跟踪。</td><td>实际报告验证成功；记录误触、延迟、滑移和掉落；固定轨迹诊断与随机目标评估分开。</td></tr>
+  <tr><td>V3：游戏闭环</td><td>接入另一分支策略，以实际执行输入驱动游戏，测试状态变化和执行偏差。</td><td>与固定动作回放比较；新观测能改变操作；同时报告游戏表现和机械执行误差。</td></tr>
+</table></div>
+<p class="small">本节是计划记录。现有轻量模型的梯度单元测试不等于 π0.5 或真实机器人验收。训练超参数、G20 动作维度和最终奖励尚未确定，因此本报告不提供可直接启动 VLA 训练的命令。权重、数据和训练产物仅存 GPU 节点；下载遵守直连优先、失败后仅使用指定代理的既定规则。</p>
+
+<h2 id="paper">9. 论文形成路径</h2>
+
+<h3>9.1 一个优先级较高的候选问题</h3>
+<div class="hypothesis card">
+  <p><span class="tag plan">待实验确认</span></p>
+  <p><b>使用 HID 监督双手视觉—触觉操作：</b>手柄能够直接报告每次接触是否改变了按钮、摇杆或扳机状态。机器人在随机探索或目标驱动的接触过程中记录视觉、触觉、本体、动作和 HID 变化，再用这些数据学习控件可操作区域、状态估计、逆模型或纠错策略。部署时比较：</p>
+  <ol>
+    <li>HID 直接参与闭环；</li>
+    <li>HID 仅作训练期特权监督；</li>
+    <li>HID 只作评价。</li>
+  </ol>
+  <p>它与 T-Dex 的区别不能只写“也用了触觉”，而应落在自由双手持握、多种活动控件、并发轨迹、自动 HID 标签和长时恢复。</p>
+</div>
+
+<h3>9.2 三种可能的论文形态</h3>
+<div class="grid3">
+  <div class="card">
+    <p class="t">基准 / 数据论文</p>
+    <p>标准目标轨迹、自动 HID 指标、多模态真机数据、失败分类和现有方法反复出现的问题。若只含单一手柄和单一硬件，泛化证据不足；最好加入不同实例、布局或第二类人机接口。</p>
+  </div>
+  <div class="card">
+    <p class="t">方法论文</p>
+    <p>根据重复出现的失败提出触觉闭环、抓握—操作协调、接触模式策略、动作表示或恢复方法，并通过控制变量和传感消融解释改进来自哪里。</p>
+  </div>
+  <div class="card">
+    <p class="t">系统论文</p>
+    <p>从目标控制轨迹到实体输入再到游戏结果的完整链路，公开硬件接口、数据与资产；必须总结可迁移的系统规律，不能只有通关视频。</p>
+  </div>
+</div>
+
+<h3>9.3 论文成立的最低证据</h3>
+<div class="card">
+  <ul>
+    <li>先验定义任务、指标、失败类别和对照，不在看到结果后任意改口径；</li>
+    <li>方法改善的必须是可重复出现的失败，而非个别成功录像；</li>
+    <li>固定/自由、触觉有/无、HID 有/无、原始/结构化动作至少覆盖关键消融；</li>
+    <li>跨初始握姿、控制器位置、实例或轨迹验证；</li>
+    <li>公开失败样本、重置条件、安全裁剪和人工干预，不只报告成功 episode；</li>
+    <li>游戏成绩与虚拟手柄上限对照，报告实体执行造成的性能损失。</li>
+  </ul>
+</div>
+
+<h2 id="next">10. 第一批里程碑与近期执行</h2>
+
+<div class="grid2">
+  <div class="decision card">
+    <p class="t">游戏线里程碑</p>
+    <p>选定的游戏能够稳定重置和加速运行；策略通过统一的虚拟 Xbox 接口控制游戏；状态输入 PPO 和画面输入基线均可重复训练、评估和恢复检查点；每个 episode 保存目标 HID、游戏帧、奖励和终止原因。</p>
+    <p class="d">先得到理想虚拟手柄结果，不等待机械臂。</p>
+  </div>
+  <div class="decision card">
+    <p class="t">机械臂线里程碑</p>
+    <p>双 G20 自由持握未改造 Xbox 手柄；系统能够同步记录完整多模态数据；通过人工或遥操作至少完成代表性的按钮、二维摇杆、模拟扳机和一个并发组合；每次失败都能定位到几何、接触、抓握、驱动、观测、时序、策略或系统问题。</p>
+    <p class="d">这是硬件诊断里程碑；VLA 接口适配按第 8.5 节并行推进。自主取物后置。</p>
+  </div>
+</div>
+
+<div class="card">
+  <p class="t">两条线共用的近期工作</p>
+  <ol>
+    <li><b>冻结动作接口：</b>确定轴范围、按钮位、时间戳、动作有效期、保持规则和 episode 字段；虚拟手柄与实体 HID 使用同一表示。</li>
+    <li><b>对齐游戏线：</b>贪吃蛇由另一分支推进；接收其手柄目标、时间语义和反馈接口变更。</li>
+    <li><b>跑通游戏基线：</b>先训练状态输入 PPO，验证奖励和动作映射；再训练画面输入版本；保存逐时刻 HID。</li>
+    <li><b>核实硬件身份：</b>记录两只 G20 的型号、序列号、固件、触觉版本、CAN 配置和厂商安全限值；记录两台 AR5 控制器版本。</li>
+    <li><b>分别带通设备：</b>单臂慢速轨迹、单手逐关节运动和触觉零点、Xbox 全按钮/轴标定；先不接模型。</li>
+    <li><b>建立唯一命令入口：</b>动作源互斥、速率限制、watchdog、裁剪记录和本地安全停止。</li>
+    <li><b>建立同步日志：</b>使用统一 episode id 和单调时间；验证视频、命令、反馈、触觉与 HID 可以对齐复盘。</li>
+    <li><b>测控件物理：</b>用卡尺和小量程推拉力计测按钮、摇杆和扳机的几何及力—位移曲线。</li>
+    <li><b>人工建立标称握姿：</b>安全托盘下慢速尝试 T1–T3，记录成功和失败，不急于优化成功率。</li>
+    <li><b>形成第一版失败记录：</b>按第 6 节分类，统计首次失败、可重复性和能消除失败的干预。</li>
+    <li><b>第一次交换数据：</b>机械臂回放游戏产生的短 HID 轨迹；游戏环境加入机械臂实测的延迟、变化率和错误模型。</li>
+    <li><b>推进 VLA 适配：</b>按 V0–V3 阶段核查 π0.5、可微条件、强化学习和实际执行反馈；每项新设计先查原始论文与作者实现。</li>
+  </ol>
+</div>
+
+<h2 id="limits">11. 局限与待确认事项</h2>
+<div class="card">
+  <ul>
+    <li><b>游戏线可能高估整机性能：</b>理想虚拟手柄没有执行延迟、漏按和抓握漂移，因此始终同时报告理想通道与受限通道结果。</li>
+    <li><b>部署观测需一致：</b>如果最终系统只有游戏画面输入，完整内部状态策略只作为单独对照，不用于示范训练。</li>
+    <li><b>没有真机证据：</b>本报告不能证明 G20 能覆盖全部 Xbox 控件，也不能证明其力不足；它定义了取得证据的办法。</li>
+    <li><b>公开模型可能不完整：</b>已发现的 G20 公开 URDF 和厂商接口不一定对应用户手上的准确代次与左右手配置，必须向厂商索取匹配资产。</li>
+    <li><b>触觉需要辨识：</b>原始触觉可能存在零漂、回差、单元差异和饱和；初期可保留原始值，不应假装已标定为真实牛顿。</li>
+    <li><b>交互与重置成本：</b>双臂双手强化学习需要可靠的重置、接触反馈和安全约束。硬件诊断记录与训练交互分开管理。</li>
+    <li><b>文献空白仍需复核：</b>目前检索没有发现完整覆盖本任务的论文，但工业演示、未收录预印本和近期工作可能存在。</li>
+    <li><b>基准不能只靠更换对象：</b>若现有方法直接解决全部任务，仍需跨条件数据、诊断价值和标准化指标支撑基准论文。</li>
+  </ul>
+</div>
+
+<h2 id="conclusion">12. 结论</h2>
+<div class="note">
+  <p>项目不需要等机械臂系统完成后再开始游戏实验。游戏强化学习和实体操作分别推进：前者先给出虚拟手柄上限、策略检查点和目标 HID 轨迹；后者测量这些轨迹经过双 AR5 + 双 G20 后产生的延迟、误差、漏按、误触和抓握漂移。统一动作接口使两条线可以独立工作，也使最后的性能差异可测。</p>
+  <p>本分支按资产核查、π0.5 接口适配、实体操作强化学习和游戏闭环四个阶段推进。尺寸、接触和双手协调是需要测量并研究的问题。最终评价既看游戏状态变化后的决策，也看手指操作产生的实际结果；单独的模型梯度检查和固定轨迹回放只覆盖其中一部分。</p>
+</div>
+
+<h2 id="appA">附录 A：最小日志字段</h2>
+<div class="card scroll">
+<table>
+  <tr><th>来源</th><th>至少保存</th><th>备注</th></tr>
+  <tr><td>双 AR5</td><td>命令关节、实际 q/dq/effort、TCP、控制器状态</td><td>左右臂使用固定 namespace。</td></tr>
+  <tr><td>双 G20</td><td>原始命令向量、实际向量、原始触觉、温度、故障</td><td>不在记录阶段丢弃原始触觉维度。</td></tr>
+  <tr><td>Xbox</td><td>raw HID event、校准后 axes/buttons、设备 id</td><td>同时记录目标 HID。</td></tr>
+  <tr><td>视觉</td><td>固定第三视角 RGB；相机内外参</td><td>深度和腕部相机按失败需要增加。</td></tr>
+  <tr><td>控制链</td><td>策略请求/响应、序号、观测时间、收发时间、裁剪量、watchdog</td><td>区分 proposed、accepted、sent、measured。</td></tr>
+  <tr><td>Episode</td><td>开始/结束、重置、人工干预、掉落、误触、失败标签</td><td>记录首次失效时间与是否恢复。</td></tr>
+  <tr><td>Manifest</td><td>硬件 SN、固件、代码 commit、标定、安全参数、任务说明</td><td>保证跨日期数据可解释。</td></tr>
+</table>
+</div>
+
+<h2 id="appB">附录 B：现有 Xbox 资产</h2>
+<div class="card">
+  <p>候选资产与许可说明位于 <a href="../../assets/xbox_controller_candidate/README.md">assets/xbox_controller_candidate/README.md</a>：</p>
+  <ul>
+    <li><b>Xbox Series Controller 3D scan：</b>CC BY-SA 4.0，外形和尺度可信度较高，但为单一高面数网格；适合视觉、尺度参考和重建碰撞体。</li>
+    <li><b>Xbox One Blender model：</b>CC0，含分别命名的按钮、摇杆、方向键、肩键、扳机和外壳；作者明确说明尺寸不准确，只适合分件与拓扑参考。</li>
+  </ul>
+  <p>这两份资产不意味着需要“自己设计手柄”。主任务始终使用普通实体 Xbox 手柄；只有具体研究假设需要仿真时，才根据实物测量补充活动关节、碰撞体和力学参数。</p>
+</div>
+
+<h2 id="references">参考文献</h2>
+<div class="card">
+<ol class="ref" style="list-style:none;padding-left:0">
+  <li>[1] J. D. Hubbard et al. <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC8279518/">Fully 3D-printed soft robots with integrated fluidic circuitry</a>. <i>Science Advances</i>, 2021. DOI: 10.1126/sciadv.abe5257.</li>
+  <li>[2] I. Guzey, B. Evans, S. Chintala, L. Pinto. <a href="https://proceedings.mlr.press/v229/guzey23a/guzey23a.pdf">Dexterity from Touch: Self-Supervised Pre-Training of Tactile Representations with Robotic Play</a>. CoRL, 2023.</li>
+  <li>[3] DexGYS. <a href="https://proceedings.neurips.cc/paper_files/paper/2024/file/5367f6d58cc98dc929e1b27fcaf2b0a6-Paper-Conference.pdf">Grasp as You Say: Language-guided Dexterous Grasp Generation</a>. NeurIPS, 2024.</li>
+  <li>[4] O. Taheri et al. <a href="https://arxiv.org/abs/2008.11200">GRAB: A Dataset of Whole-Body Human Grasping of Objects</a>. ECCV, 2020.</li>
+  <li>[5] <a href="https://doi.org/10.1002/aisy.202400966">A Robotic Hand with Soft Transmission Systems for Automated Operations of Computer Mouse</a>. <i>Advanced Intelligent Systems</i>, 2025.</li>
+  <li>[6] Little French Kev. <a href="https://hackaday.io/project/170977-a-game-that-learns-how-to-play-itself/details">A game that learns how to play itself</a>. Engineering project, 2020.</li>
+  <li>[7] T. Z. Zhao et al. <a href="https://arxiv.org/abs/2304.13705">Learning Fine-Grained Bimanual Manipulation with Low-Cost Hardware</a>. RSS, 2023. — ACT.</li>
+  <li>[8] LinkerHand. <a href="https://github.com/linker-bot/linkerhand-ros2-sdk">LinkerHand ROS 2 SDK</a>. — G20、双手、触觉和话题接口。</li>
+  <li>[9] ROKAE. <a href="https://docs.rokae.com/docs/ROS2/rokae%20ros2%E4%BD%BF%E7%94%A8%E6%89%8B%E5%86%8C/">ROKAE ROS 2 使用手册</a>.</li>
+  <li>[10] ROKAE. <a href="https://docs.rokae.com/docs/SDK--0-8-x/SDK_Intro/">xCore SDK 简介与实时要求</a>.</li>
+  <li>[11] <a href="https://github.com/XPolicyLab/XPolicyLab">XPolicyLab</a>. — 具身策略训练与部署适配。</li>
+  <li>[12] <a href="https://github.com/RoboTwin-Platform/RoboTwin">RoboTwin</a>. — 双臂操作仿真与数据平台。</li>
+  <li>[13] Physical Intelligence. <a href="https://github.com/Physical-Intelligence/openpi">openpi：基础权重、模型类型与训练代码</a>. 核查日期：2026-10-06。</li>
+  <li>[14] Physical Intelligence. <a href="https://github.com/Physical-Intelligence/openpi/blob/main/src/openpi/models/pi0_config.py">Pi0Config</a>；<a href="https://github.com/Physical-Intelligence/openpi/blob/main/src/openpi/models_pytorch/pi0_pytorch.py">PyTorch 模型实现</a>. 默认维度、状态编码与采样梯度边界；核查日期：2026-10-06。</li>
+  <li>[15] E. Jang, S. Gu, B. Poole. <a href="https://arxiv.org/abs/1611.01144">Categorical Reparameterization with Gumbel-Softmax</a>. ICLR, 2017，§2.2。</li>
+  <li>[16] <a href="https://arxiv.org/abs/2505.22094">ReinFlow: Fine-tuning Flow Matching Policy with Online Reinforcement Learning</a>；<a href="https://github.com/ReinFlow/ReinFlow">作者代码</a>. 在线强化学习适配候选，尚未在本任务复现。</li>
+  <li>[17] NVIDIA. <a href="https://github.com/NVIDIA/Isaac-GR00T/blob/main/getting_started/finetune_new_embodiment.md">Fine-tune on Custom Embodiments</a>. 用于核查新机器人形态适配，不代表本任务纯强化学习已跑通。</li>
+</ol>
+</div>
+
+</main>
+<script>
+const btn = document.getElementById("theme");
+btn.onclick = () => {
+  const root = document.documentElement;
+  const dark = root.dataset.theme === "dark" || (!root.dataset.theme && matchMedia("(prefers-color-scheme: dark)").matches);
+  root.dataset.theme = dark ? "light" : "dark";
+};
+</script>
+</body>
+</html>

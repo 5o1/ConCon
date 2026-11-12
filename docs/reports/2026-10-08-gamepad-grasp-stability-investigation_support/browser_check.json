@@ -1,0 +1,72 @@
+[
+  {
+    "viewport": 1440,
+    "document_width": 1425,
+    "page_overflow": false,
+    "fonts_ready": "loaded",
+    "title": "双臂灵巧手操作 Xbox One S：握持稳定、姿态恢复与模型分工调查",
+    "y": 0,
+    "full_height": 8955,
+    "table_count": 8,
+    "missing_anchors": [],
+    "view": "opening",
+    "screenshot": "opening.png",
+    "screenshot_bytes": 311653
+  },
+  {
+    "viewport": 1440,
+    "document_width": 1425,
+    "page_overflow": false,
+    "fonts_ready": "loaded",
+    "title": "双臂灵巧手操作 Xbox One S：握持稳定、姿态恢复与模型分工调查",
+    "y": 2271,
+    "full_height": 8955,
+    "table_count": 8,
+    "missing_anchors": [],
+    "view": "architecture",
+    "screenshot": "architecture.png",
+    "screenshot_bytes": 328234
+  },
+  {
+    "viewport": 1440,
+    "document_width": 1440,
+    "page_overflow": false,
+    "fonts_ready": "loaded",
+    "title": "双臂灵巧手操作 Xbox One S：握持稳定、姿态恢复与模型分工调查",
+    "y": 6393.6875,
+    "full_height": 8955,
+    "table_count": 8,
+    "missing_anchors": [],
+    "view": "tutorial",
+    "screenshot": "tutorial.png",
+    "screenshot_bytes": 293008
+  },
+  {
+    "viewport": 390,
+    "document_width": 375,
+    "page_overflow": false,
+    "fonts_ready": "loaded",
+    "title": "双臂灵巧手操作 Xbox One S：握持稳定、姿态恢复与模型分工调查",
+    "y": 0,
+    "full_height": 14127,
+    "table_count": 8,
+    "missing_anchors": [],
+    "view": "mobile",
+    "screenshot": "mobile.png",
+    "screenshot_bytes": 173987
+  },
+  {
+    "viewport": 1440,
+    "document_width": 1425,
+    "page_overflow": false,
+    "fonts_ready": "loaded",
+    "title": "双臂灵巧手操作 Xbox One S：握持稳定、姿态恢复与模型分工调查",
+    "y": 7764.171875,
+    "full_height": 8930,
+    "table_count": 8,
+    "missing_anchors": [],
+    "view": "references",
+    "screenshot": "references.png",
+    "screenshot_bytes": 194324
+  }
+]

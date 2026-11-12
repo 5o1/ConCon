@@ -1,0 +1,12 @@
+{
+  "retained_candidates": [
+    {
+      "fingerprint": "668504448fb46592",
+      "reason": "前人方法机制的转述；PianoMime和其论文作者承担提取、训练与奖励设计，引用[1]明确，保留前人工作主语。"
+    },
+    {
+      "fingerprint": "f9f538eedbb9060f",
+      "reason": "静态维度、全连接参数公式及配置适用范围属于可重复计算的实现事实，数据和网络作主语更准确；parameter_check.json保存算术核查。"
+    }
+  ]
+}

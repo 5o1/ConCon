@@ -1,0 +1,30 @@
+[
+  {
+    "path": "docs/reports/2026-10-05-gamepad-embodied-research-plan.html",
+    "sha256": "218b3a424c158acdb3e82506c7a378ee32677bd745c7f5f5d0ec8c9217718773"
+  },
+  {
+    "path": "gamepad_vla/README.md",
+    "sha256": "39c344504394a04ff1c35c36c287b383a6d3ba1961bcd2bea6767455c73f8cec"
+  },
+  {
+    "path": "gamepad_vla/AGENTS.md",
+    "sha256": "696ad2dae0a4402363fdde391330b281f9666e26dca8d74a8b44ea66bd5e0411"
+  },
+  {
+    "path": "resnake_gym/src/resnake_gym/gamepad.py",
+    "sha256": "aa161c35880b80d5592678b9aa0ea7978f7eb4fe9c35a4e1f9ae22e930b0aa6f"
+  },
+  {
+    "path": "xbox_gamepad_physics/README.md",
+    "sha256": "6778b2dce9b16cdc076a6ac79e95204766a6a3cce7016766879f5a0a35ab3564"
+  },
+  {
+    "path": "xbox_gamepad_physics/assets/asset_index.json",
+    "sha256": "94926ad95b8bab772d24e5bd3cd9323d1d53efcf6c62ccb82ba8f44e082a00f3"
+  },
+  {
+    "path": "xbox_gamepad_physics/specs/xbox_v1.json",
+    "sha256": "e757354705f62f31f17a4df671ca8e4f008cff4e6657319b7648e6fa1bd2e0fc"
+  }
+]

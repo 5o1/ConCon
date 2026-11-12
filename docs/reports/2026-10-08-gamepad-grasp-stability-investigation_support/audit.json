@@ -1,0 +1,167 @@
+{
+  "html": {
+    "file": "/tmp/concon-grasp-investigation-20261008/2026-10-08-gamepad-grasp-stability-investigation.html",
+    "headings": [
+      "双臂灵巧手操作 Xbox One S：握持稳定、姿态恢复与模型分工调查",
+      "1. 任务定义与当前判断",
+      "2. APRPianist 能提供哪些已验证依据",
+      "2.1 基础轨迹、残差策略与姿态正则的职责",
+      "2.2 代码和论文的适用边界",
+      "3. 固定坐标、状态反馈与在线适应",
+      "4. 专门握持模型：职责与协调方式",
+      "5. 三类恢复范围与人工复位",
+      "6. VLA 与专门握持模型的关系",
+      "7. 可检验的假设与最小实验",
+      "8. 指标、奖励与反馈获取",
+      "9. ConCon 当前材料与实现边界",
+      "10. 核查复现与近期顺序",
+      "附录 A. APRPianist 实现核查",
+      "参考文献",
+      "附录 B. 本地证据与快照"
+    ],
+    "citation_numbers_used": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "reference_numbers_defined": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "missing_reference_definitions": [],
+    "uncited_reference_entries": [],
+    "external_link_count": 10,
+    "style_phrase_counts": {
+      "不是": 0,
+      "而是": 0,
+      "并非": 0,
+      "而非": 0,
+      "值得注意的是": 0,
+      "这意味着": 0
+    },
+    "defensive_phrase_counts": {
+      "不是手改": 0,
+      "并非手改": 0,
+      "没有手改": 0,
+      "没有造假": 0,
+      "并非造假": 0,
+      "不是造假": 0,
+      "不是挑选最好": 0,
+      "并非挑选最好": 0,
+      "没有挑选最好": 0,
+      "没有偷偷改": 0,
+      "并未偷偷改": 0,
+      "没有补造": 0,
+      "并未补造": 0,
+      "不伪造": 0,
+      "没有伪造": 0,
+      "未伪造": 0,
+      "没有篡改": 0,
+      "未篡改": 0
+    },
+    "authorial_voice": {
+      "note": "Candidates require paragraph-level human review, not pronoun quotas or automatic failure.",
+      "sections": {
+        "双臂灵巧手操作 Xbox One S： 握持稳定、姿态恢复与模型分工调查": {
+          "paragraphs": 1,
+          "with_explicit_author": 1
+        },
+        "摘要": {
+          "paragraphs": 1,
+          "with_explicit_author": 1
+        },
+        "1. 任务定义与当前判断": {
+          "paragraphs": 3,
+          "with_explicit_author": 3
+        },
+        "2.1 基础轨迹、残差策略与姿态正则的职责": {
+          "paragraphs": 4,
+          "with_explicit_author": 2
+        },
+        "2.2 代码和论文的适用边界": {
+          "paragraphs": 2,
+          "with_explicit_author": 2
+        },
+        "3. 固定坐标、状态反馈与在线适应": {
+          "paragraphs": 4,
+          "with_explicit_author": 4
+        },
+        "4. 专门握持模型：职责与协调方式": {
+          "paragraphs": 5,
+          "with_explicit_author": 5
+        },
+        "5. 三类恢复范围与人工复位": {
+          "paragraphs": 2,
+          "with_explicit_author": 2
+        },
+        "6. VLA 与专门握持模型的关系": {
+          "paragraphs": 5,
+          "with_explicit_author": 5
+        },
+        "7. 可检验的假设与最小实验": {
+          "paragraphs": 3,
+          "with_explicit_author": 3
+        },
+        "8. 指标、奖励与反馈获取": {
+          "paragraphs": 3,
+          "with_explicit_author": 3
+        },
+        "9. ConCon 当前材料与实现边界": {
+          "paragraphs": 1,
+          "with_explicit_author": 1
+        },
+        "10. 核查复现与近期顺序": {
+          "paragraphs": 3,
+          "with_explicit_author": 3
+        },
+        "附录 A. APRPianist 实现核查": {
+          "paragraphs": 1,
+          "with_explicit_author": 0
+        },
+        "附录 B. 本地证据与快照": {
+          "paragraphs": 1,
+          "with_explicit_author": 1
+        }
+      },
+      "candidates": [
+        {
+          "section": "2.1 基础轨迹、残差策略与姿态正则的职责",
+          "line": 32,
+          "fingerprint": "668504448fb46592",
+          "cues": [
+            "训练",
+            "计算"
+          ],
+          "excerpt": "PianoMime 从示范中提取指尖目标，通过逆运动学计算基础动作，再训练策略输出修正量。逆运动学是根据目标指尖位置计算关节运动的方法；残差策略则在基础动作附近调整控制。论文将目标按键奖励与跟随示范的风格奖励结合起来。 [1]"
+        },
+        {
+          "section": "附录 A. APRPianist 实现核查",
+          "line": 158,
+          "fingerprint": "f9f538eedbb9060f",
+          "cues": [
+            "计算"
+          ],
+          "excerpt": "默认单帧观测的静态维度为 54＋88＋1＋979＋10＋46＋396＝1574，四帧叠加为 6296。全连接层参数量按“输入维数×输出维数＋输出偏置数”计算；Actor 另计 47 个动作分布参数。观测维数以实际环境构造结果为最终依据，参数量随配置或检查点变化。"
+        }
+      ]
+    },
+    "empty_table_cells": 0
+  },
+  "authorial_voice_review": {
+    "file": "/tmp/concon-grasp-investigation-20261008/2026-10-08-gamepad-grasp-stability-investigation_support/voice_review.json",
+    "retained_candidate_count": 2,
+    "unresolved_candidates": [],
+    "stale_review_fingerprints": []
+  },
+  "checked_source_sha256": "0ea01cc98681741ee40aa3f1415675672c0bbc26ce15d916beff640258afbfb6",
+  "intended_destination": "docs/reports/2026-10-08-gamepad-grasp-stability-investigation.html"
+}

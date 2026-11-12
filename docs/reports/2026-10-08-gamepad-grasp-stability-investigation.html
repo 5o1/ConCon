@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>双臂灵巧手操作 Xbox One S：握持稳定、姿态恢复与模型分工调查</title>
+<style>
+:root{color-scheme:light;--ink:#182638;--muted:#546477;--accent:#155e75;--line:#d9e3ea;--paper:#fff;--wash:#f1f6f9}
+*{box-sizing:border-box}body{margin:0;background:#edf2f5;color:var(--ink);font-family:"Noto Sans CJK SC","Microsoft YaHei",sans-serif;font-size:16px;line-height:1.85}main{max-width:1080px;margin:36px auto;padding:48px 60px;background:var(--paper);border:1px solid var(--line);border-radius:12px}h1{font-size:30px;line-height:1.5;letter-spacing:.02em;margin:0 0 16px}h2{font-size:23px;line-height:1.5;margin:38px 0 16px;border-bottom:2px solid var(--line);padding-bottom:9px}h3{font-size:18px;line-height:1.6;margin:25px 0 10px}p{margin:12px 0}a{color:var(--accent);text-decoration-thickness:1px;text-underline-offset:3px}code,pre{font-family:"Noto Sans Mono CJK SC",monospace;font-size:.88em}code{overflow-wrap:anywhere}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:var(--wash);padding:16px;border:1px solid var(--line);border-radius:6px;line-height:1.65}.meta,.caption{font-size:13px;color:var(--muted)}.abstract,.callout{padding:18px 22px;background:#eff8fa;border-left:4px solid var(--accent);border-radius:4px}.abstract strong{color:#104a5b}nav{padding:15px 20px;background:var(--wash);border-radius:6px;margin:24px 0}nav a{display:inline-block;margin:4px 14px 4px 0}.table-wrap{overflow-x:auto;margin:15px 0}table{border-collapse:collapse;width:100%;font-size:14px;line-height:1.75}th,td{text-align:left;vertical-align:top;border:1px solid var(--line);padding:11px 12px}th{background:#eaf1f6;font-weight:600}tr:nth-child(even) td{background:#fafcfd}.formula{padding:10px 15px;background:var(--wash);font-family:"Noto Sans Mono CJK SC",monospace;font-size:14px;overflow-wrap:anywhere}figure{margin:20px 0}.diagram-scroll{overflow-x:auto}svg{display:block;width:100%;min-width:760px;height:auto}ul,ol{padding-left:25px}li{margin:7px 0}.ref{font-size:.82em;white-space:nowrap}.refs{list-style:none;padding-left:0}.refs li{font-size:14px;line-height:1.75;margin:14px 0}.small{font-size:14px}.hash{font-size:11px;word-break:break-all}footer{border-top:1px solid var(--line);margin-top:30px;padding-top:15px;color:var(--muted);font-size:13px}
+@media(max-width:700px){main{margin:0;border:0;border-radius:0;padding:25px 18px}h1{font-size:25px}h2{font-size:21px}table{min-width:640px}body{font-size:15px}.abstract,.callout{padding:14px 16px}}
+</style>
+</head>
+<body><main>
+<header>
+<p class="meta">调查报告 · 2026-10-08 · 论文核查与工作区快照 · 实验状态：未开展手柄握持训练或真机评测</p>
+<h1>双臂灵巧手操作 Xbox One S：<br>握持稳定、姿态恢复与模型分工调查</h1>
+<p>研究对象：上游模型发送带时间信息的虚拟手柄指令，下游机器人在自由持握条件下操作实体手柄。本文讨论 APRPianist 的借鉴价值、专门握持模型的可行性，以及它与现有视觉—语言—动作模型（VLA）路线的关系。</p>
+</header>
+<div class="abstract"><strong>摘要。</strong>本文建议将持续握持与手内姿态恢复作为独立建模职责，并与按键操作共享状态、协调动作。PianoMime 的既有实验支持“参考轨迹提供基础运动，残差学习提高任务准确性”；HORA 和 AnyRotate 提供动态手内操作与触觉反馈的研究依据。固定布局训练不能证明策略在物体位置与朝向变化后可恢复，也不能推导近端策略优化（PPO，一种强化学习优化方法）或多层感知机必须依赖固定坐标。专门握持模型是待验证的架构选择；手内纠偏与完全掉落后的重新抓取需要分别评测。ConCon 已有 π0.5 适配路线，本报告将握持模块作为兼容该路线的候选扩展。</div>
+<nav aria-label="目录">
+<a href="#task">任务与判断</a><a href="#piano">弹琴证据</a><a href="#coordinates">坐标与适应</a><a href="#architecture">模块架构</a><a href="#recovery">恢复范围</a><a href="#vla">VLA 取舍</a><a href="#experiments">验证协议</a><a href="#metrics">评价</a><a href="#snapshot">项目现状</a><a href="#reproduce">核查复现</a><a href="#references">参考文献</a>
+</nav>
+
+<section id="task"><h2>1. 任务定义与当前判断</h2>
+<p>上游给出的目标是“按下或释放某个按钮”“将摇杆置于某个二维位置”“将扳机压到某个幅度”。下游需要让实体手柄实际产生这些状态，同时维持可继续操作的抓握。我们分别记录目标状态与手柄实际报告的状态；游戏决策与物理执行由两个环节承担。</p>
+<p>本文将核心问题表述为：当操作手指离开支撑位置、按压产生反作用力或手柄发生滑移时，机器人能否自主维持和恢复可操作的握姿？由此，成功条件同时涉及控件执行、抓握稳定和异常恢复。</p>
+<p>我们建议保留自由持握作为主任务，把刚性固定手柄作为诊断对照。固定条件可以测量控件操作能力；自由持握条件才能检验抓握与操作的耦合。该分工与<a href="2026-10-05-gamepad-embodied-research-plan.html">现有研究计划</a>一致。本文尚未取得双臂双手操作该手柄的实测结果。</p>
+</section>
+
+<section id="piano"><h2>2. APRPianist 能提供哪些已验证依据</h2>
+<h3>2.1 基础轨迹、残差策略与姿态正则的职责</h3>
+<p>PianoMime 从示范中提取指尖目标，通过逆运动学计算基础动作，再训练策略输出修正量。逆运动学是根据目标指尖位置计算关节运动的方法；残差策略则在基础动作附近调整控制。论文将目标按键奖励与跟随示范的风格奖励结合起来。<a class="ref" href="#ref-1">[1]</a></p>
+<div class="formula">执行动作 = 逆运动学基础动作 + 学习策略的修正动作</div>
+<p>F1 综合衡量误按与漏按：精确率是实际按下的键中符合目标的比例，召回率是目标键中实际按下的比例。F1 的取值为 0～1，越高越好；它不直接等于弹对音符的百分比。</p>
+<div class="table-wrap"><table>
+<thead><tr><th>方法</th><th>平均 F1</th><th>证据范围</th></tr></thead>
+<tbody><tr><td>示范轨迹＋逆运动学直接执行</td><td>0.72</td><td rowspan="3">PianoMime §4.1、图 3；选取的 10 个演奏片段，论文报告的平均值。</td></tr><tr><td>RoboPianist 强化学习基线</td><td>0.75</td></tr><tr><td>PianoMime 完整方法</td><td>0.94</td></tr></tbody>
+</table></div>
+<p>作者还报告，去掉风格奖励后 F1 增加约 0.03，但指尖轨迹与人类示范的差异增大。本文据此区分：参考轨迹提供运动先验，残差策略承担任务修正，风格奖励调节人类相似性。这些数据来自论文实验，未在本次工作区重跑。<a class="ref" href="#ref-1">[1]</a></p>
+<p>APRPianist 对应的 APR 是“对抗式姿态正则化”（Adversarial Posture Regularization）。它保留残差控制，引入人类手部运动分布约束。论文中 Adieu 的 F1 为 PianoMime 0.962、APR 0.960，同时姿态自然性指标得到改善。本文把 APR 视为自然性模块的研究依据；稳定抓握与掉落恢复需要另行验证。<a class="ref" href="#ref-2">[2]</a></p>
+<h3>2.2 代码和论文的适用边界</h3>
+<p>我们核查的 APRPianist 提交为 <code>e31c01055a566c9764d76ded00de2710dc71b6be</code>。当前代码包含共享手部判别器和 PPO 奖励整合；钢琴和双手安装关系预先设定，手部初始位置默认不随机化。前臂平移、腕部和手指运动仍改变指尖相对键盘的位置。它提供固定安装条件下的控制实现，未包含手柄自由抓握与重新拾取任务。</p>
+<p>本地代码还存在需要单独注明的差异：判别器隐藏层为 1024→512，APR 论文式 (10) 为 1024→256；踏板输出在任务执行前被曲目目标覆盖；能量和指法奖励函数最终返回 0。本文以代码说明当前行为，以论文说明其作者报告的实验结果，避免将两者合并为一次实验。</p>
+</section>
+
+<section id="coordinates"><h2>3. 固定坐标、状态反馈与在线适应</h2>
+<p>已知安装关系使琴键位置可以直接转换为机器人控制目标，降低了定位与标定负担。当手柄在掌中滑移时，原先计算的按钮位置可能失效；本文将新的相对位置和朝向估计、控制目标更新列为对应的设计要求。位姿在此指物体的位置与朝向。</p>
+<p>本文不将“固定环境下完成任务”推导为“PPO 或多层感知机只能处理固定环境”。多层感知机（MLP）是策略的函数结构，PPO 是更新策略的方法。HORA 使用 PPO 训练 MLP 基础策略，配合根据关节和动作历史估计物体属性的适应模块，在真实 Allegro Hand 上实现不同物体的手内旋转。这提供了动态手内控制的反例，但适用范围仍是论文评测的物体与任务。<a class="ref" href="#ref-3">[3]</a></p>
+<p>AnyRotate 使用丰富触觉信息学习手内多轴旋转，其实验讨论了触觉对不稳定抓握检测与反应调整的帮助。本文据此把接触反馈列为握持模块的候选观测，传感器是否有效需要在实际 G20 配置上核查。<a class="ref" href="#ref-4">[4]</a></p>
+<p>因此，本文将失效原因分成三个待检验候选：相对位姿不可观测；训练未覆盖扰动后的状态；策略缺少改变接触和重新握持的技能。第 7 节通过观测与训练条件的对照区分这些候选，避免仅凭一次掉落归因于网络类型。</p>
+</section>
+
+<section id="architecture"><h2>4. 专门握持模型：职责与协调方式</h2>
+<p>我们提出一个候选分工：握持模块持续维持可操作的手柄姿态，操作模块实现上游控件目标，统一控制器协调共用的腕部和手指。握持模型可使用强化学习策略或状态反馈控制，并不预设必须使用语言模型。残差强化学习在真实接触操作中已有研究依据，手柄上的收益仍由本项目实验确定。<a class="ref" href="#ref-5">[5]</a></p>
+<figure>
+<div class="diagram-scroll"><svg viewBox="0 0 960 370" role="img" aria-labelledby="diagram-title diagram-desc">
+<title id="diagram-title">握持与控件操作的候选协同架构</title>
+<desc id="diagram-desc">目标指令输入操作策略，机器人和手柄观测同时输入操作策略与握持恢复策略。统一协调控制器合并目标后控制双臂双手，并将反馈返回观测环节。</desc>
+<defs><marker id="arrow" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#42667a"/></marker></defs>
+<g fill="#f1f6f9" stroke="#9bb4c2" stroke-width="1.4"><rect x="15" y="30" width="205" height="80" rx="8"/><rect x="15" y="210" width="205" height="100" rx="8"/><rect x="290" y="30" width="215" height="80" rx="8"/><rect x="290" y="210" width="215" height="100" rx="8"/><rect x="580" y="117" width="190" height="90" rx="8"/><rect x="810" y="117" width="135" height="90" rx="8"/></g>
+<g fill="#182638" font-family="Noto Sans CJK SC, sans-serif" font-size="17" text-anchor="middle"><text x="117" y="61">上游目标序列</text><text x="117" y="87" font-size="14">控件值、执行时间、有效性</text><text x="117" y="244">状态与接触观测</text><text x="117" y="270" font-size="14">关节、手柄位姿、触觉</text><text x="117" y="292" font-size="14">实际手柄反馈及历史</text><text x="397" y="62">控件操作策略</text><text x="397" y="87" font-size="14">基础动作与修正目标</text><text x="397" y="245">握持与手内恢复策略</text><text x="397" y="274" font-size="14">支撑接触与腕部调整</text><text x="675" y="150">统一协调控制器</text><text x="675" y="177" font-size="14">共享关节与模式切换</text><text x="877" y="151">双臂双手</text><text x="877" y="178" font-size="14">实体手柄操作</text></g>
+<g fill="none" stroke="#42667a" stroke-width="2" marker-end="url(#arrow)"><path d="M220 70 H280"/><path d="M220 260 H280"/><path d="M245 260 V100 H280"/><path d="M505 70 H545 V145 H570"/><path d="M505 260 H545 V185 H570"/><path d="M770 162 H800"/><path d="M877 207 V345 H117 V320"/></g>
+<text x="545" y="336" text-anchor="middle" fill="#546477" font-size="14" font-family="Noto Sans CJK SC, sans-serif">执行后的机器人、接触与手柄状态反馈</text>
+</svg></div>
+<figcaption class="caption">图 1　候选架构。双模型共享观测并经统一控制器执行；图中反馈链路代表设计要求，尚未完成手柄任务集成。</figcaption>
+</figure>
+<div class="table-wrap"><table><thead><tr><th>模块</th><th>输入</th><th>输出与职责</th></tr></thead><tbody>
+<tr><td>握持与恢复模型</td><td>关节位置与速度；可用接触观测；手柄相对双手位姿、估计可靠程度及时间历史；操作所需手指</td><td>支撑手指、腕部或双臂的调整目标；可操作握姿与恢复状态。目标兼顾稳定、可达控件与避免误触。</td></tr>
+<tr><td>控件操作模型</td><td>带时间的控件目标；机器人状态；当前手柄位姿；允许使用的实际反馈；握持状态</td><td>按钮、摇杆、扳机操作的指尖或关节目标；等待或继续执行的请求。</td></tr>
+<tr><td>统一协调控制器</td><td>两个模型的目标、当前接触与共用关节状态</td><td>唯一执行动作；按握持状态协调资源。最终动作单位和维数按实物驱动接口确定。</td></tr>
+</tbody></table></div>
+<p>本文建议在操作拇指转移到其他控件前，让支撑手指承担必要接触；握持显著失稳时，暂缓新增操作并进入纠偏。具体接触分工属于待测设计。两个模型直接相加的关节动作可能冲突，因此我们将动作协调纳入对照实验。</p>
+<p>相对位姿可通过视觉估计，接触变化可通过触觉或已验证的力学反馈估计。仅从实际按钮报告无法唯一推断握姿：相同的中立报告可以对应多种手柄位置。因此，本文将电子反馈用于执行结果，另设抓握状态观测或历史估计模块。</p>
+<p>我们建议用手柄自身坐标描述按钮与摇杆位置，并记录手柄相对左、右手掌或腕部坐标系的变换。坐标原点与朝向需由实际模型和标定文件定义，训练与部署一致。位置输入以 m 表示，评价可换算为 mm；姿态表示与旋转误差口径在实现时锁定。未经力标定的触觉保留原始读数，历史观测按秒和时间戳组织，避免用模型调用次数替代真实时间。</p>
+<p>本文建议让操作目标随估计到的手柄位姿更新。恢复的验收条件是重新获得可操作的稳定抓握，允许在新的可达姿态下继续执行；是否需要回到标称握姿，由实验任务事先规定。</p>
+</section>
+
+<section id="recovery"><h2>5. 三类恢复范围与人工复位</h2>
+<div class="table-wrap"><table><thead><tr><th>事件</th><th>需要的能力</th><th>可测终点</th></tr></thead><tbody>
+<tr><td>轻微滑移，仍有有效接触</td><td>检测接触变化并调整支撑，更新操作坐标</td><td>位姿误差回到预定容差，随后指令能够正确执行</td></tr>
+<tr><td>手内明显旋转或部分失去接触</td><td>双手重新分配支撑，恢复可操作朝向，处理待执行指令的时间有效性</td><td>稳定握持持续规定时间，原目标或重新下发目标完成</td></tr>
+<tr><td>手柄完全掉落</td><td>定位落点、接近、重新抓取与重建握姿</td><td>自主重新抓取并完成后续操作；单独统计人工干预</td></tr>
+</tbody></table></div>
+<p>HORA 以稳定初始抓握启动训练和评测，本文不将其手内旋转结果扩大为掉落后的自主拾取。<a class="ref" href="#ref-3">[3]</a> 我们建议首先验证仍处于接触中的恢复，再独立建立掉落后重新抓取任务。是否需要实验员复位，取决于系统是否实现并通过相应恢复能力的评测。</p>
+<p>我们将指令过期和恢复完成分开记录。恢复期间暂停、重发或取消的目标需要有明确时间语义；已经错过的短脉冲即使稍后按出，也计为时序失败。恢复后能继续执行与全过程按时执行是两个不同指标。</p>
+</section>
+
+<section id="vla"><h2>6. VLA 与专门握持模型的关系</h2>
+<p>视觉—语言—动作模型（VLA）结合视觉与语言条件生成机器人动作。OpenVLA 的研究依据涉及视觉语言预训练及机器人任务适配。该类能力可以用于识别场景和理解任务，但本文没有找到直接证明其可稳定操作该双臂双手与 Xbox One S 组合的实验。<a class="ref" href="#ref-6">[6]</a></p>
+<p>本文将“需要视觉”和“需要语言条件”分开判断。手柄相对位姿变化需要可用的状态估计；视觉可以提供这种信息，也可以与触觉历史融合。上游已经给出结构化控件目标时，语言理解的必要性取决于是否还要求识别不同控制器、接受开放任务或自主组织更长流程。</p>
+<p>ConCon 现有文档把 π0.5 设为主候选，并已建立连续目标、本体状态和手柄反馈的适配接口。我们建议在该路线中研究独立握持模块及状态估计，同时用状态输入控制策略作为研究对照。该建议不改写现有模型选择，也不新增示范、行为克隆或规则专家训练阶段。</p>
+<p>新握持模型的训练结构、更新参数范围和奖励权重仍未确定。我们建议在保留现有连续目标条件链路时，分别核查握持模块、模式切换和动作协调对求导的影响；真实传感报告与物理接触的梯度不能由张量接口自动获得。模型接口通过与实体任务通过采用不同验收证据。</p>
+<p>我们将 VLA、状态策略和握持模块的贡献分别评测：同条件比较有无握持模块，再评测观测条件或预训练初始化的作用。只有手柄任务的对照结果才能支持“VLA 更好”或“专门模块更好”的结论；本文提供的是实验设计。</p>
+</section>
+
+<section id="experiments"><h2>7. 可检验的假设与最小实验</h2>
+<p>以下假设尚未在该手柄系统上执行验证。我们将训练预算、测试目标序列、传感器配置、初始握姿和扰动条件显式记录，使用未参与训练选择的测试条件。硬件与接触资产是否适合实验，以实际核查结果为准。</p>
+<div class="table-wrap"><table><thead><tr><th>假设</th><th>改变条件与对照</th><th>测量</th><th>支持或推翻条件</th></tr></thead><tbody>
+<tr><td>H1：布局变化后的失效与观测不足或训练范围有关</td><td>相对位姿观测有/无 × 扰动训练有/无，构成四组；固定其他观测、训练预算和评价。改变手柄相对手掌位置和朝向，IK 使用同一套已更新几何。</td><td>扰动前后控件误差、稳定时间、掉落率；分别记录位姿估计误差</td><td>加入观测或训练扰动后稳定改善，支持相应因素的贡献；均无改善时，继续检查接触协调、可达性和恢复技能，不能直接归因于 PPO/MLP。</td></tr>
+<tr><td>H2：专门握持模型能减少复位且保持操作能力</td><td>G0：操作策略＋名义持握；G1：单一策略同时学习持握与操作；G2：操作策略＋握持模型＋协调器。各组使用相同可用传感器与目标；匹配交互预算并记录可训练参数差异。</td><td>掉落率、人工干预率、恢复时间、指令成功率、误触和延迟</td><td>G2 在共同测试下比 G0/G1 更少复位，并满足预先设定的操作非劣容差，支持模块化收益；只减少掉落而妨碍操作，不满足整体目标。</td></tr>
+<tr><td>H3：接触信息或历史估计对恢复有独立贡献</td><td>在同一模型中比较：本体＋视觉；增加可用触觉；增加历史适应模块。对不可用传感器不编造观测，训练与部署输入一致。</td><td>滑移检测延迟、恢复成功率、误触；控制相同扰动与目标序列</td><td>留出扰动中出现重复改善，支持新增观测或估计贡献；无改善则不支持该条件下的必要性。</td></tr>
+</tbody></table></div>
+<p>我们建议先用按下—保持—释放、单摇杆、单扳机和一组并发目标建立可重复试验，再加入指尖切换和外力扰动。初始姿态、扰动施加时刻与幅度均记录；扰动幅度由实物可达性与测量范围确定，不把聊天中的示例角度直接设为验收标准。</p>
+<p>每组计划使用多个训练种子和重复试验，公开试验总数、完成数与人工干预数。样本量和操作非劣容差应在正式评测前根据先导方差及任务需求确定。这里尚无估计方差，因此本文不提供具有统计保证含义的固定样本数或显著性结论。</p>
+</section>
+
+<section id="metrics"><h2>8. 指标、奖励与反馈获取</h2>
+<p>精确率表示实际按下的按钮中有多少符合目标，召回率表示目标按钮中有多少被实际按下；F1 是二者的调和平均。APRPianist 代码按时间步计算后求平均，本文保留这一实现范围。对于稀疏手柄指令，还需单独测量按下和释放事件，防止长时间中立状态掩盖漏操作。</p>
+<div class="formula">F1 = 2 × 精确率 × 召回率 /（精确率 + 召回率）</div>
+<div class="table-wrap"><table><thead><tr><th>对象</th><th>建议报告的指标</th><th>口径</th></tr></thead><tbody>
+<tr><td>数字按钮</td><td>事件成功率、漏按、误触、释放失败、响应延迟</td><td>按时间窗匹配按下/释放事件；同时公开时间窗与阈值。</td></tr>
+<tr><td>摇杆与扳机</td><td>归一化跟踪误差、保持误差、响应延迟</td><td>摇杆 [-1,1]，扳机 [0,1]；分别报告控件，禁止只用按钮 F1 概括。</td></tr>
+<tr><td>抓握</td><td>手柄相对位姿漂移、掉落率、首次失稳时间</td><td>位置以 mm、朝向以度报告；掉落率分母为完整试验数。</td></tr>
+<tr><td>恢复</td><td>恢复成功率、恢复时间、人工干预率</td><td>恢复成功率分母为实际发生的对应异常数；成功需恢复握持并完成后续目标。</td></tr>
+<tr><td>整体任务</td><td>无人工干预且按时完成的序列比例</td><td>任何漏事件、超时或人工复位按预先定义的失败规则计入。</td></tr>
+</tbody></table></div>
+<p>在 Windows PC 上，XInput 可读取实际数字按钮和模拟轴，作为任务结果反馈；我们将针对主机连接方式另外核查读取链路。接口包含实际状态，不提供手柄空间位姿。<a class="ref" href="#ref-7">[7]</a> ConCon 浏览器资产分支使用另一种 21 维传输布局，连接游戏/VLA 的 20 维布局时需要显式转换字段顺序与轴符号。</p>
+<p>我们建议将训练目标分成控件跟踪、握持稳定、恢复完成、误触与动作变化几个项，并通过独立评价检验是否达到任务要求。具体奖励权重尚未确定。实际手柄报告可以作为训练奖励或部署观测；这两种设置须分组说明，位姿评价真值和未来目标信息不能混入未获允许的部署输入。</p>
+</section>
+
+<section id="snapshot"><h2>9. ConCon 当前材料与实现边界</h2>
+<div class="table-wrap"><table><thead><tr><th>本地材料</th><th>已确认状态</th><th>未确认事项</th></tr></thead><tbody>
+<tr><td><a href="../../gamepad_vla/README.md">gamepad_vla/README.md</a></td><td>π0.5 条件适配器；目标序列、时间、本体状态、实际反馈接口；既有强化学习路线</td><td>完整双臂双手动作维数、实物零位和单位；手柄操作成功率</td></tr>
+<tr><td><a href="../../resnake_gym/src/resnake_gym/gamepad.py">gamepad.py</a></td><td>20 维 xinput-normalized-v1：14 按钮＋6 轴；按钮表示保持状态</td><td>实体执行链路中的时间标定、反馈延迟及跨分支转换验收</td></tr>
+<tr><td><a href="../../xbox_gamepad_physics/assets/asset_index.json">资产索引</a></td><td>Xbox One S 实物型号与外观候选已确认；实物尺寸测量未完成</td><td>局部几何、质量惯量、碰撞、摩擦及控件力学</td></tr>
+<tr><td><a href="../../xbox_gamepad_physics/specs/xbox_v1.json">物理规格</a></td><td>状态为 incomplete_not_for_dynamics_or_RL</td><td>可训练接触环境与真实控件力—位移标定</td></tr>
+<tr><td><a href="../../gamepad_vla/README.md">G20 镜像候选记录</a></td><td>记录了左右手候选资产的运动学检查；21 个关节中含 5 个 mimic，独立变量记录为 16</td><td>与实物对应关系、动力学耦合与接触验证；不按加载关节数直接定义独立动作维数</td></tr>
+</tbody></table></div>
+<p>本节描述 2026-10-08 的本地快照，未重新执行 README 中的历史远端实验。我们将“接口代码存在”“资产通过几何检查”“接触环境可训练”“真机任务完成”分别记录。已有适配器与外观模型为后续研究提供入口，握持恢复模块仍待实现与评测。</p>
+</section>
+
+<section id="reproduce"><h2>10. 核查复现与近期顺序</h2>
+<p>以下命令只核查本地证据。从 <code>~/shared/ConCon</code> 运行，需 Git 与 Python 3 标准库。第一条应输出本文记录的 APRPianist 提交；第二条应输出目标型号和当前物理规格状态。如结果变化，先更新证据快照再沿用本报告的状态判断。</p>
+<pre>cd ~/shared/ConCon
+git -C ../APRPianist rev-parse HEAD
+python3 - &lt;&lt;'PY'
+import json
+from pathlib import Path
+root = Path('xbox_gamepad_physics')
+index = json.loads((root / 'assets/asset_index.json').read_text())
+spec = json.loads((root / 'specs/xbox_v1.json').read_text())
+print(index['target_hardware'])
+print(spec['status'])
+PY</pre>
+<p>本文建议按三步推进。首先核查实际关节控制、接触传感、位姿估计和手柄反馈能否同步记录；其次在自由持握下取得可重复的滑移与控件失败，执行 H1 的最小对照；最后依据失败证据实现握持模块，按 H2/H3 验证收益。固定手柄用于诊断，不替代自由持握目标。</p>
+<p>本次仅完成文献与代码调查、数据结构核查和报告复审；未启动强化学习、远端训练或真机操作。尚无该握持模型的可运行训练入口，因此本文不给出训练启动命令。完整掉落后的重新拾取作为独立后续任务。</p>
+</section>
+
+<section><h2>附录 A. APRPianist 实现核查</h2>
+<div class="table-wrap"><table><thead><tr><th>核查项</th><th>结果与证据性质</th><th>本地源码</th></tr></thead><tbody>
+<tr><td>PPO 架构</td><td>Actor/Critic 隐藏层各为 1024→256，GELU；47 维动作。默认观测静态推算为 6296 维。</td><td><a href="../../../APRPianist/robopianist/single_task/train_apr_ppo.py">train_apr_ppo.py</a>，L630–649</td></tr>
+<tr><td>参数量</td><td>按上述维度实例化策略核对：Actor 6,722,654；Critic 6,710,785；PPO 合计 13,433,439。此检查使用构造的观测空间，未实例化实际曲目环境。</td><td>本次前序参数核查；完整公式见下文</td></tr>
+<tr><td>APR 判别器</td><td>82→1024→512→1，610,305 参数；左右手共享，全部网络合计 14,043,744 参数。</td><td><a href="../../../APRPianist/robopianist/single_task/apr/apr_module.py">apr_module.py</a>、<a href="../../../APRPianist/robopianist/single_task/apr/networks.py">networks.py</a></td></tr>
+<tr><td>训练预算</td><td>Python 默认 2000 轮×24 环境×512 步 = 24,576,000 环境交互步；Shell 默认为 1 轮。未取得本机完整训练耗时或收敛记录。</td><td><a href="../../../APRPianist/robopianist/single_task/run_apr_ppo.sh">run_apr_ppo.sh</a>、训练入口 L667–673</td></tr>
+<tr><td>专家特征</td><td>左右文件各为 (374,41)、float32；本次前序检查数值有限。相邻帧可形成每手 373 对，共 746 单手转移样本。</td><td><code>dataapr/improvised_left.npy</code>、<code>improvised_right.npy</code></td></tr>
+<tr><td>任务简化与奖励</td><td>踏板由目标状态覆盖；能量和指法函数最终返回 0；任务创建禁用前臂奖励。不得仅按函数名称推断有效奖励。</td><td><a href="../../../APRPianist/robopianist/single_task/piano_with_shadow_hands_res.py">piano_with_shadow_hands_res.py</a>，L217–231、L328–389；训练入口 L308–309</td></tr>
+</tbody></table></div>
+<p>默认单帧观测的静态维度为 54＋88＋1＋979＋10＋46＋396＝1574，四帧叠加为 6296。全连接层参数量按“输入维数×输出维数＋输出偏置数”计算；Actor 另计 47 个动作分布参数。观测维数以实际环境构造结果为最终依据，参数量随配置或检查点变化。</p>
+<div class="formula">Actor = (6296+1)×1024 + (1024+1)×256 + (256+1)×47 + 47<br>Critic = (6296+1)×1024 + (1024+1)×256 + (256+1)×1<br>APR = (82+1)×1024 + (1024+1)×512 + (512+1)×1</div>
+</section>
+
+<section><h2 id="references">参考文献</h2>
+<ol class="refs">
+<li id="ref-1">[1] Cheng Qian, Julen Urain, Kevin Zakka, Jan Peters. <a href="https://arxiv.org/pdf/2407.18178">PianoMime: Learning a Generalist, Dexterous Piano Player from Internet Demonstrations</a>. arXiv:2407.18178v1, 2024. 本文主要核查 §3.2、§4.1、图 3–4。</li>
+<li id="ref-2">[2] Bin Qiu, Yanming Shao, Guanyu Cai, Yao Mu. <a href="https://arxiv.org/html/2606.23848v1">Enforcing Human-like Kinematics in Dexterous Piano Playing via Adversarial Posture Regularization</a>. arXiv:2606.23848v1, 2026. 本文主要核查 §III-A、式 (10)、§IV-B 与表 IV。</li>
+<li id="ref-3">[3] Haozhi Qi, Ashish Kumar, Roberto Calandra, Yi Ma, Jitendra Malik. <a href="https://proceedings.mlr.press/v205/qi23a.html">In-Hand Object Rotation via Rapid Motor Adaptation</a>. CoRL 2022；PMLR 205:1722–1732, 2023. <a href="https://arxiv.org/pdf/2210.04887">全文</a>：§3、附录 C 的初始化、PPO 与 MLP 结构。</li>
+<li id="ref-4">[4] Max Yang et al. <a href="https://proceedings.mlr.press/v270/yang25c.html">AnyRotate: Gravity-Invariant In-Hand Object Rotation with Sim-to-Real Touch</a>. CoRL 2024；PMLR 270:4727–4747, 2025. <a href="https://arxiv.org/abs/2405.07391">预印本</a>。</li>
+<li id="ref-5">[5] Tobias Johannink et al. <a href="https://arxiv.org/abs/1812.03201">Residual Reinforcement Learning for Robot Control</a>. arXiv:1812.03201, 2018. 用传统控制与学习修正组合完成真实接触任务。</li>
+<li id="ref-6">[6] Moo Jin Kim et al. <a href="https://arxiv.org/abs/2406.09246">OpenVLA: An Open-Source Vision-Language-Action Model</a>. arXiv:2406.09246v3, 2024. 用于说明 VLA 的视觉语言条件与任务适配定位。</li>
+<li id="ref-7">[7] Microsoft. <a href="https://learn.microsoft.com/en-us/windows/win32/api/xinput/ns-xinput-xinput_gamepad">XINPUT_GAMEPAD</a>；<a href="https://learn.microsoft.com/en-us/windows/win32/api/xinput/nf-xinput-xinputgetstate">XInputGetState</a>. 官方接口文档。访问日期：2026-10-08。</li>
+</ol>
+</section>
+<section><h2>附录 B. 本地证据与快照</h2>
+<p class="small">ConCon 根目录在核查时无可引用的 HEAD；本文以文件 SHA-256 标识工作区材料。完整哈希见<a href="2026-10-08-gamepad-grasp-stability-investigation_support/evidence_manifest.json">配套证据清单</a>。文献链接访问日期均为 2026-10-08。现有报告、代码和资产未由本次调查改写。</p>
+<div class="table-wrap"><table><thead><tr><th>文件</th><th>SHA-256 前 16 位</th></tr></thead><tbody>
+<tr><td><code>docs/reports/2026-10-05-gamepad-embodied-research-plan.html</code></td><td><code>218b3a424c158acd</code></td></tr>
+<tr><td><code>gamepad_vla/README.md</code></td><td><code>39c344504394a04f</code></td></tr>
+<tr><td><code>gamepad_vla/AGENTS.md</code></td><td><code>696ad2dae0a44023</code></td></tr>
+<tr><td><code>resnake_gym/src/resnake_gym/gamepad.py</code></td><td><code>aa161c35880b80d5</code></td></tr>
+<tr><td><code>xbox_gamepad_physics/README.md</code></td><td><code>6778b2dce9b16cdc</code></td></tr>
+<tr><td><code>xbox_gamepad_physics/assets/asset_index.json</code></td><td><code>94926ad95b8bab77</code></td></tr>
+<tr><td><code>xbox_gamepad_physics/specs/xbox_v1.json</code></td><td><code>e757354705f62f31</code></td></tr>
+</tbody></table></div>
+</section>
+<footer>调查结论适用于所列论文与工作区快照。握持模块、协调收益、VLA 相对优势与自主重新抓取均需要对应实验。报告源文件为本 HTML；<a href="2026-10-08-gamepad-grasp-stability-investigation_review.md">复审记录</a>与<a href="2026-10-08-gamepad-grasp-stability-investigation_support/audit.json">自动审计</a>保存检查过程，配套证据清单定位工作区快照。</footer>
+</main></body></html>

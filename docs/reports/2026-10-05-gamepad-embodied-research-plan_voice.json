@@ -1,0 +1,136 @@
+{
+  "retained_candidates": [
+    {
+      "fingerprint": "5f517cbed3ad4b12",
+      "reason": "文档日期和状态元信息，不承担研究方法论证。"
+    },
+    {
+      "fingerprint": "da8059e387da384a",
+      "reason": "以游戏线和机械臂线为明确责任者说明分工；保留系统层主语。"
+    },
+    {
+      "fingerprint": "99827dc4631da025",
+      "reason": "研究流程的祈使式计划，未描述已完成实验；责任者为本项目团队。"
+    },
+    {
+      "fingerprint": "8bcb6816adc52b31",
+      "reason": "承接同节研究问题的计划说明，采用者为本项目团队。"
+    },
+    {
+      "fingerprint": "213281cc3e6e1cf4",
+      "reason": "解释任务分解适用范围；研究者责任已由章节建立。"
+    },
+    {
+      "fingerprint": "ec0f7040c37085c6",
+      "reason": "游戏分支历史接口约定；本轮仅同步链接，未改其训练实现。"
+    },
+    {
+      "fingerprint": "ef223311e2b2d0d0",
+      "reason": "描述两个实验线的交接顺序，以实验线为责任者。"
+    },
+    {
+      "fingerprint": "d58fb21e965e55d2",
+      "reason": "本项目是明确的研究主体，词面匹配未识别它。"
+    },
+    {
+      "fingerprint": "8df7626758bf5766",
+      "reason": "卡片标题，不是研究判断段落。"
+    },
+    {
+      "fingerprint": "56084b6f5e086bb5",
+      "reason": "仪器化工作清单，执行者是机械臂分支；祈使句保留。"
+    },
+    {
+      "fingerprint": "e3fb8479d067f03b",
+      "reason": "验收问题列举，责任者由阶段标题确定。"
+    },
+    {
+      "fingerprint": "98850030d501b57e",
+      "reason": "硬件诊断步骤而非训练示范；该段不宣称实验结果。"
+    },
+    {
+      "fingerprint": "d856e3059c911aec",
+      "reason": "诊断阶段退出条件，不是成功观察。"
+    },
+    {
+      "fingerprint": "e23e8f9329e5a00b",
+      "reason": "轨迹跟踪诊断计划，目标是手柄状态；不输出专家机械动作。"
+    },
+    {
+      "fingerprint": "69de7a0743f7bcfd",
+      "reason": "阶段验收标准而非观察结论。"
+    },
+    {
+      "fingerprint": "381b0fb0b909f17b",
+      "reason": "条件性方法计划，方法取舍由本项目根据失败记录执行。"
+    },
+    {
+      "fingerprint": "51720acc05a85ade",
+      "reason": "两组实验的对照协议，以执行链为主语说明差异。"
+    },
+    {
+      "fingerprint": "736ba0eed4fb9dfc",
+      "reason": "验收标准，不宣称已有对照结果。"
+    },
+    {
+      "fingerprint": "d43a73f5e7983317",
+      "reason": "指标适用性说明，游戏分数是被解释对象。"
+    },
+    {
+      "fingerprint": "67afcca91176fca6",
+      "reason": "模型适配核查步骤；后半段客观说明序列化梯度边界。"
+    },
+    {
+      "fingerprint": "f896278b94b2e57f",
+      "reason": "平台资产核查清单，未写已完成平台验证。"
+    },
+    {
+      "fingerprint": "47bb3a5240ebae33",
+      "reason": "两实验线的责任明确，固定回放及反馈闭环为实验设定。"
+    },
+    {
+      "fingerprint": "8c2fd7f3e23ec21a",
+      "reason": "算法前后向行为说明；直通估计为主体，引用原文。"
+    },
+    {
+      "fingerprint": "0da08b7b90da6209",
+      "reason": "计划状态与存储约束说明，明确缺失验证。"
+    },
+    {
+      "fingerprint": "92c011dc0bef796f",
+      "reason": "待确认研究假设；以机器人交互过程说明数据获取。"
+    },
+    {
+      "fingerprint": "3aad419fa602880e",
+      "reason": "相邻工作边界说明，承接本项目研究问题。"
+    },
+    {
+      "fingerprint": "31a626d8cc0585e6",
+      "reason": "潜在论文形态，不是已有贡献结论。"
+    },
+    {
+      "fingerprint": "94e625ba234716b5",
+      "reason": "方法研究的条件性路线，不是已完成改进。"
+    },
+    {
+      "fingerprint": "be1032cbc5460b10",
+      "reason": "游戏线里程碑目标，非当前结果；不覆盖另一分支进展。"
+    },
+    {
+      "fingerprint": "3136b9bf200797cb",
+      "reason": "硬件诊断里程碑目标，非真机成功声明。"
+    },
+    {
+      "fingerprint": "07862f9065105668",
+      "reason": "分工和接口的总结，主语是两条实验线。"
+    },
+    {
+      "fingerprint": "1d9535d8377b94ac",
+      "reason": "本分支为明确责任者，检查器未识别该研究主体。"
+    },
+    {
+      "fingerprint": "307cc91b754437e1",
+      "reason": "资产与实体对象的区别说明，物理对象作主语。"
+    }
+  ]
+}
